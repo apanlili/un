@@ -14,6 +14,15 @@ def format_simulator_data(simulator_data_raw, kpi_key,
     df = df[['Country', 'ISO', 'Series Name', 'KPI ID', 'data_report']]
     df['data_report'] = pd.to_numeric(df['data_report'], errors='coerce')
 
+    # Drop ISOs where every data_report value is NaN
+    #iso_has_data = df.groupby('ISO')['data_report'].apply(lambda g: g.notna().any())
+    #dropped_isos = iso_has_data[~iso_has_data].index.tolist()
+
+    #if dropped_isos:
+    #    print(f"Filtered out {len(dropped_isos)} ISO(s) with no data: {dropped_isos}")
+
+    #df = df[df['ISO'].isin(iso_has_data[iso_has_data].index)]
+
     return df
 
 def format_historical_kpi_data(historical_kpi_data_raw, iso_filter=None):
