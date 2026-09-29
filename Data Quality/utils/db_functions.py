@@ -1,5 +1,7 @@
 import pandas as pd
+import numpy as np
 import mssql_python
+import os
 
 def get_connection_string(env: str = "dev") -> str:
     prefix = env.upper()
@@ -57,7 +59,11 @@ def get_latest_sim_data(connection_string: str, kpi_list: list) -> pd.DataFrame:
             columns = [col[0] for col in cursor.description]
             rows = cursor.fetchall()
 
-    return pd.DataFrame.from_records(rows, columns=columns)
+    df = pd.DataFrame.from_records(rows, columns=columns)
+    df['KPI ID'] = df['KPI ID'].astype(str).str.strip()
+    df['data_report'] = pd.to_numeric(df['data_report'], errors='coerce')
+
+    return df
 
 def get_latest_hist_data(connection_string: str, kpi_list: list) -> pd.DataFrame:
     """Return historical data per ISO and KPI ID, with every year between each
