@@ -1,6 +1,8 @@
 
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+import os
+import glob
 import io
 from openpyxl.drawing.image import Image as XLImage
 import matplotlib.pyplot as plt
@@ -498,4 +500,16 @@ def write_country_sheets_to_excel(
             written += 1
  
     print(f"Saved: {output_path} ({written} sheet{'s' if written != 1 else ''})")
- 
+
+ # Find GDrive shortcut
+def find_shared_folder(name):
+    """Return the real local path of a Google Drive folder that's shared with you."""
+    candidates = (
+        glob.glob(rf"G:\My Drive\{name}") +
+        glob.glob(rf"G:\Shared drives\{name}") +
+        glob.glob(rf"G:\.shortcut-targets-by-id\*\{name}")
+    )
+    folders = [p for p in candidates if os.path.isdir(p)]
+    if not folders:
+        raise FileNotFoundError(f"Couldn't find '{name}' in Google Drive for Desktop")
+    return folders[0]
