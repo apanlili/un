@@ -4,6 +4,7 @@ from openpyxl.utils import get_column_letter
 import os
 import glob
 import io
+import subprocess
 from openpyxl.drawing.image import Image as XLImage
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -502,14 +503,30 @@ def write_country_sheets_to_excel(
     print(f"Saved: {output_path} ({written} sheet{'s' if written != 1 else ''})")
 
  # Find GDrive shortcut
+def _resolve_lnk(lnk):
+    """Return the target path of a Windows .lnk file, or '' if it can't be read."""
+    cmd = f"(New-Object -ComObject WScript.Shell).CreateShortcut('{lnk}').TargetPath"
+    out = subprocess.run(["powershell", "-NoProfile", "-Command", cmd],
+                         capture_output=True, text=True)
+    return out.stdout.strip()
+
 def find_shared_folder(name):
     """Return the real local path of a Google Drive folder that's shared with you."""
-    candidates = (
-        glob.glob(rf"G:\My Drive\{name}") +
-        glob.glob(rf"G:\Shared drives\{name}") +
-        glob.glob(rf"G:\.shortcut-targets-by-id\*\{name}")
-    )
-    folders = [p for p in candidates if os.path.isdir(p)]
-    if not folders:
-        raise FileNotFoundError(f"Couldn't find '{name}' in Google Drive for Desktop")
-    return folders[0]
+    # Direct folders (My Drive or Shared drives)
+    for p in (rf"G:\My Drive\{name}", rf"G:\Shared drives\{name}"):
+        if os.path.isdir(p):
+            return p
+
+    # Drive shortcuts, which show up as .lnk files
+    lnk = rf"G:\My Drive\{name}.lnk"
+    if os.path.isfile(lnk):
+        target = _resolve_lnk(lnk)
+        if target and os.path.isdir(target):
+            return target
+
+    # Older Drive versions that expose shortcut targets directly
+    for p in glob.glob(rf"G:\.shortcut-targets-by-id\*\{name}"):
+        if os.path.isdir(p):
+            return p
+
+    raise FileNotFoundError(f"Couldn't find '{name}' in Google Drive for Desktop")
