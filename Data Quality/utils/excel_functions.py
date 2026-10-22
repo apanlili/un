@@ -269,6 +269,190 @@ def _add_plots_sheet(ws, df, group_cols=("KPI ID", "ISO"),
     return buffers
 
 
+def write_dataframes_to_excel_v2(
+    dataframes: dict,
+    output_path: str = "output.xlsx",
+    freeze_header: bool = True,
+    autofit_columns: bool = True,
+    max_col_width: int = 50,
+    header_bg_color: str = None,#"4472C4",   # Excel-blue; set None for no fill
+    header_font_color: str = "FFFFFF",
+    header_bold: bool = True,
+    add_borders: bool = False,
+    add_autofilter: bool = True,
+    index: bool = False,
+    delta_cols: dict = None,
+    delta_pos_color: str = "008000",   # green
+    delta_neg_color: str = "FF0000",   # red
+    shade_cols: dict = None,
+    shade_colors: tuple = ("DDEBF7", "FCE4D6"),   # light blue, light orange
+):
+    """
+    Write a dict of DataFrames to one Excel file, one sheet per DataFrame.
+ 
+    Parameters
+    ----------
+    dataframes : dict
+        Mapping of {sheet_name: dataframe}. Sheet names are what you control
+        naming for — just use whatever keys you want.
+        Example: {"Sales": df_sales, "Inventory": df_inv}
+    output_path : str
+        Path to save the .xlsx file.
+    freeze_header : bool
+        If True, freezes the header row so it stays visible when scrolling.
+    autofit_columns : bool
+        If True, resizes each column to fit its longest value.
+    max_col_width : int
+        Cap on auto-fit column width (prevents huge columns from long text).
+    header_bg_color : str or None
+        Hex color (no '#') for header cell background fill.
+    header_font_color : str
+        Hex color (no '#') for header font color.
+    header_bold : bool
+        Whether header text is bold.
+    add_borders : bool
+        If True, adds thin borders around all cells.
+    add_autofilter : bool
+        If True, adds filter dropdowns to the header row.
+    index : bool
+        Whether to write the DataFrame index as a column.
+    delta_cols : dict or None
+        Mapping of {sheet_name: [column names]} to color code, using the same
+        sheet names as `dataframes`. Sheets left out get no color coding.
+        Example: {"Sales": ["sales_delta"]}
+    delta_pos_color, delta_neg_color : str
+        Hex colors (no '#') for positive / negative values in `delta_cols`.
+        Zero stays black.
+    shade_cols : dict or None
+        Mapping of {sheet_name: [[group 1 cols], [group 2 cols], ...]}, using the
+        same sheet names as `dataframes`. Each group (header + values) gets a
+        background fill from `shade_colors`, in order. Sheets left out get no shading.
+        Example: {"Sales": [["sales_2025"], ["sales_2026"]]}
+    shade_colors : tuple
+        Hex colors (no '#') for the shade groups, cycled if there are more groups.
+    """
+ 
+    with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
+        for sheet_name, df in dataframes.items():
+            # Excel sheet names max 31 chars, no : \ / ? * [ ]
+            safe_name = _sanitize_sheet_name(sheet_name)
+            df.to_excel(writer, sheet_name=safe_name, index=index)
+ 
+            worksheet = writer.sheets[safe_name]
+            _format_worksheet_v2(
+                worksheet,
+                df,
+                freeze_header=freeze_header,
+                autofit_columns=autofit_columns,
+                max_col_width=max_col_width,
+                header_bg_color=header_bg_color,
+                header_font_color=header_font_color,
+                header_bold=header_bold,
+                add_borders=add_borders,
+                add_autofilter=add_autofilter,
+                index=index,
+                delta_cols=(delta_cols or {}).get(sheet_name, []),
+                delta_pos_color=delta_pos_color,
+                delta_neg_color=delta_neg_color,
+                shade_cols=(shade_cols or {}).get(sheet_name, []),
+                shade_colors=shade_colors,
+            )
+ 
+    print(f"Saved: {output_path}")
+ 
+def _format_worksheet_v2(
+    ws,
+    df,
+    freeze_header,
+    autofit_columns,
+    max_col_width,
+    header_bg_color,
+    header_font_color,
+    header_bold,
+    add_borders,
+    add_autofilter,
+    index,
+    delta_cols,
+    delta_pos_color,
+    delta_neg_color,
+    shade_cols,
+    shade_colors,
+):
+    n_cols = df.shape[1] + (1 if index else 0)
+    n_rows = df.shape[0] + 1  # +1 for header row
+ 
+    # --- Header styling ---
+    header_font = Font(bold=header_bold, color=header_font_color if header_bg_color else "000000")
+    header_fill = PatternFill(
+        start_color=header_bg_color, end_color=header_bg_color, fill_type="solid"
+    ) if header_bg_color else None
+    header_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+ 
+    for col_idx in range(1, n_cols + 1):
+        cell = ws.cell(row=1, column=col_idx)
+        cell.font = header_font
+        if header_fill:
+            cell.fill = header_fill
+        cell.alignment = header_align
+ 
+    # Slightly taller header row to fit wrapped text
+    ws.row_dimensions[1].height = 22
+
+    offset = 2 if index else 1   # Excel column of the first df column
+
+    # --- Shade column groups (e.g. one shade per year), header + values ---
+    missing = [c for group in shade_cols for c in group if c not in df.columns]
+    if missing:
+        raise KeyError(f"shade_cols not found in sheet '{ws.title}': {missing}")
+    for g, group in enumerate(shade_cols):
+        color = shade_colors[g % len(shade_colors)]
+        fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
+        for col in group:
+            col_idx = df.columns.get_loc(col) + offset
+            for row in ws.iter_rows(min_row=1, max_row=n_rows, min_col=col_idx, max_col=col_idx):
+                row[0].fill = fill
+
+    # --- Delta columns: red if negative, black if 0, green if positive ---
+    pos_font, neg_font = Font(color=delta_pos_color), Font(color=delta_neg_color)
+    missing = [c for c in delta_cols if c not in df.columns]
+    if missing:
+        raise KeyError(f"delta_cols not found in sheet '{ws.title}': {missing}")
+    for j, col in enumerate(df.columns):
+        if col not in delta_cols:
+            continue
+        for row in ws.iter_rows(min_row=2, max_row=n_rows, min_col=j + offset, max_col=j + offset):
+            cell = row[0]
+            if isinstance(cell.value, (int, float)):
+                if cell.value > 0:
+                    cell.font = pos_font
+                elif cell.value < 0:
+                    cell.font = neg_font
+ 
+    # --- Optional thin borders on all used cells ---
+    if add_borders:
+        thin = Side(style="thin", color="B7B7B7")
+        border = Border(left=thin, right=thin, top=thin, bottom=thin)
+        for row in ws.iter_rows(min_row=1, max_row=n_rows, min_col=1, max_col=n_cols):
+            for cell in row:
+                cell.border = border
+ 
+    # --- Freeze header row (and index column if present) ---
+    if freeze_header:
+        ws.freeze_panes = "B2" if index else "A2"
+ 
+    # --- Autofilter on header row ---
+    if add_autofilter:
+        ws.auto_filter.ref = ws.dimensions
+ 
+    # --- Autofit column widths based on longest value ---
+    if autofit_columns:
+        for col_idx in range(1, n_cols + 1):
+            col_letter = get_column_letter(col_idx)
+            max_len = 0
+            for cell in ws[col_letter]:
+                if cell.value is not None:
+                    max_len = max(max_len, len(str(cell.value)))
+            ws.column_dimensions[col_letter].width = min(max_len + 3, max_col_width)
 #############################################
 ############## Country Profile ##############
 #############################################
