@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import re
 
 def format_simulator_data(simulator_data_raw, kpi_key,
                           pivot_names=('Country', 'ISO', 'Region', 'Sub-region', 'Income Type')):
@@ -26,7 +27,7 @@ def format_simulator_data(simulator_data_raw, kpi_key,
 
     return df
 
-def format_historical_kpi_data(historical_kpi_data_raw, iso_filter=None):
+def format_historical_kpi_data_old(historical_kpi_data_raw, iso_filter=None):
     """Reshape raw historical KPI data from wide to long and normalize dtypes."""
     rename_map = {
         'Unnamed: 0': 'KPI ID',
@@ -62,6 +63,76 @@ def format_historical_kpi_data(historical_kpi_data_raw, iso_filter=None):
 
     return df_long.reset_index(drop=True)
 
+
+_ISO3 = re.compile(r'^[A-Z]{3}$')
+
+def _iso_share(values, valid_isos=None):
+    """Share of non-empty values that look like ISO3 codes."""
+    vals = [str(v).strip() for v in values
+            if pd.notna(v) and str(v).strip() and not str(v).startswith('Unnamed:')]
+    if not vals:
+        return 0.0
+    if valid_isos is not None:
+        hits = sum(v in valid_isos for v in vals)
+    else:
+        hits = sum(bool(_ISO3.match(v)) for v in vals)
+    return hits / len(vals)
+
+
+def format_historical_kpi_data(historical_kpi_data_raw, iso_filter=None, valid_isos=None):
+    """Reshape raw historical KPI data from wide to long and normalize dtypes.
+
+    Accepts both layouts:
+      V1: header row = country names, first data row = ISO codes
+      V2: header row = ISO codes,     first data row = country names
+    """
+    replacement_dict = {
+        'Mean years of schooling': 'Mean Year of Schooling',
+        'Expected years of schooling': 'Expected Year of Schooling',
+    }
+    id_cols = ['KPI ID', 'Series Name', 'year_historical_automated']
+
+    df = historical_kpi_data_raw.copy()
+    if valid_isos is not None:
+        valid_isos = set(pd.Series(valid_isos).astype(str).str.strip())
+
+    # Detect which row holds the ISO codes
+    header_vals = list(df.columns[3:])
+    first_row_vals = list(df.iloc[0, 3:])
+    header_score = _iso_share(header_vals, valid_isos)
+    row_score = _iso_share(first_row_vals, valid_isos)
+
+    if max(header_score, row_score) < 0.5:
+        raise ValueError(
+            f"Couldn't find a row of ISO codes (header {header_score:.0%}, "
+            f"first row {row_score:.0%} ISO-like). Check the file layout.")
+
+    iso_source = first_row_vals if row_score > header_score else header_vals
+    iso_cols = [str(v).strip() if pd.notna(v) else '' for v in iso_source]
+    df.columns = id_cols + iso_cols
+
+    # Drop blank / unnamed country columns
+    df = df.loc[:, [c for c in df.columns
+                    if c in id_cols or (c and c.lower() != 'nan' and not c.startswith('Unnamed:'))]]
+
+    # Keep only real data rows (drops the names/ISO row and any stray header rows)
+    df['year_historical_automated'] = pd.to_numeric(df['year_historical_automated'], errors='coerce')
+    df = df[df['year_historical_automated'].notna()].copy()
+
+    df['Series Name'] = df['Series Name'].astype(str).str.strip().replace(replacement_dict)
+
+    df_long = df.melt(id_vars=id_cols, var_name='ISO', value_name='data_historical_automated')
+
+    if iso_filter is not None:
+        df_long = df_long[df_long['ISO'].isin(iso_filter)]
+
+    df_long['data_historical_automated'] = pd.to_numeric(
+        df_long['data_historical_automated'], errors='coerce').astype('Float64')
+    df_long['KPI ID'] = (df_long['KPI ID'].astype(str).str.strip()
+                         .str.replace(r'\.0$', '', regex=True))
+    df_long['year_historical_automated'] = df_long['year_historical_automated'].astype('Int64')
+
+    return df_long.reset_index(drop=True)
 
 # KPI Summary stats
 def get_kpi_totals(df):
@@ -753,3 +824,105 @@ def profile_country_kpi_tbl(metadata, country_iso, quality_cols, kpi_year):
     return country_kpi
 
 ####################################################
+
+####################################################
+######### Exact Match Rate Checks ##################
+####################################################
+
+EXACT_MATCH_THRESHOLD = 50.0  # exact match rate threshold, in percent
+_EXACT_MATCH_CATS = ['A_total', 'A1_cap_adjusted_match']
+
+
+def _match_flag(rate, threshold=EXACT_MATCH_THRESHOLD):
+    return '⚠️' if rate < threshold else '✅'
+
+
+def _print_check_header(title):
+    print(f"\n{'=' * 50}\n{title}\n{'=' * 50}")
+
+
+def _print_match_summary(flagged, df, label, threshold=EXACT_MATCH_THRESHOLD):
+    if flagged.empty:
+        print(f"✅ All {len(df)} {label} have an exact match rate of at least {threshold:.0f}%.")
+    else:
+        print(f"\n{len(flagged)} of {len(df)} {label} flagged.")
+
+
+def check_exact_match_rate(summary_stats, threshold=EXACT_MATCH_THRESHOLD):
+    """Overall exact match rate from the summary_stats table (Category / Count)."""
+    total = summary_stats.loc[summary_stats['Category'] == 'Total', 'Count'].iloc[0]
+    matched = summary_stats.loc[summary_stats['Category'].isin(_EXACT_MATCH_CATS), 'Count'].sum()
+    rate = matched / total * 100 if total else 0.0
+
+    note = f" (below {threshold:.0f}% threshold)" if rate < threshold else ''
+    print(f"{_match_flag(rate, threshold)} Exact match rate is {rate:.2f}%{note} "
+          f"— {int(matched):,} of {int(total):,} records matched.")
+    return rate
+
+
+def check_exact_match_rate_by_kpi(summary_stats_kpi, threshold=EXACT_MATCH_THRESHOLD):
+    """Per-KPI exact match rate, computed from counts. Rate is on a 0-100 scale."""
+    df = summary_stats_kpi.copy()
+    df['exact_match_rate'] = df[_EXACT_MATCH_CATS].sum(axis=1) / df['Total'] * 100
+    df['exact_match_flag'] = df['exact_match_rate'].apply(_match_flag, threshold=threshold)
+
+    flagged = df[df['exact_match_rate'] < threshold].sort_values('exact_match_rate')
+    for _, row in flagged.iterrows():
+        matched = int(row[_EXACT_MATCH_CATS].sum())
+        print(f"⚠️ KPI {row['KPI ID']}: Exact match rate is {row['exact_match_rate']:.2f}% "
+              f"(below {threshold:.0f}% threshold) — {matched} of {int(row['Total'])} records matched.")
+
+    _print_match_summary(flagged, df, 'KPIs', threshold)
+    return df
+
+
+def check_exact_match_rate_by_country(summary_stats_country, label='countries',
+                                      threshold=EXACT_MATCH_THRESHOLD):
+    """Per-country exact match rate from the _pct columns. Rate is on a 0-100 scale."""
+    df = summary_stats_country.copy()
+    df['exact_match_rate'] = df[[c + '_pct' for c in _EXACT_MATCH_CATS]].sum(axis=1)
+    if df['exact_match_rate'].max() <= 1:  # stored as fractions
+        df['exact_match_rate'] *= 100
+    df['exact_match_flag'] = df['exact_match_rate'].apply(_match_flag, threshold=threshold)
+
+    flagged = df[df['exact_match_rate'] < threshold].sort_values('exact_match_rate')
+    for _, row in flagged.iterrows():
+        print(f"⚠️ {row['Country']}: Exact match rate is {row['exact_match_rate']:.2f}% "
+              f"(below {threshold:.0f}% threshold).")
+
+    _print_match_summary(flagged, df, label, threshold)
+    return df
+
+
+def run_exact_match_checks(summary_stats, summary_stats_kpi, summary_country_escwa,
+                           escwa_members=None, iso_to_country=None,
+                           threshold=EXACT_MATCH_THRESHOLD):
+    """Run the overall, per-KPI and ESCWA-country exact match checks.
+
+    summary_country_escwa is the country summary already filtered to ESCWA
+    members. Pass escwa_members and iso_to_country to also get a warning for
+    members that were skipped (no ISO mapping or no row in the country summary).
+
+    Returns
+    -------
+    tuple
+        (overall_rate, per_kpi_df, per_escwa_country_df)
+    """
+    _print_check_header('Overall Accuracy Check')
+    overall_rate = check_exact_match_rate(summary_stats, threshold)
+
+    _print_check_header('Per KPI Check')
+    per_kpi = check_exact_match_rate_by_kpi(summary_stats_kpi, threshold)
+
+    _print_check_header('By Country Check')
+    if escwa_members is not None and iso_to_country is not None:
+        no_mapping = [iso for iso in escwa_members if iso not in iso_to_country]
+        no_row = sorted({iso_to_country[iso] for iso in escwa_members if iso in iso_to_country}
+                        - set(summary_country_escwa['Country']))
+        if no_mapping or no_row:
+            print(f"⚠️ ESCWA members not found and skipped: {no_mapping + no_row}")
+
+    per_country = check_exact_match_rate_by_country(
+        summary_country_escwa, label='ESCWA countries', threshold=threshold)
+
+    return overall_rate, per_kpi, per_country
