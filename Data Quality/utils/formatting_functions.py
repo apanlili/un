@@ -556,7 +556,11 @@ def get_match_data(simulator_data, historical_kpi_data_long, kpi_country_summary
     match_data['value_difference'] = abs(
         match_data['data_report'] - match_data['data_historical_automated']
     )
-    denom = match_data['data_report'].replace(0, np.nan)
+    # Relative difference uses abs(report) so negative report values cannot
+    # produce a negative ratio that trivially passes `<= error_tol`.
+    # A report value of 0 gets NaN (no percentage-based approximate match);
+    # 0 == 0 is still caught as exact by `condition` below.
+    denom = match_data['data_report'].abs().replace(0, np.nan)
     condition = (match_data['value_difference'] == 0).fillna(False)
     match_data['value_difference_percentage'] = np.where(
         condition,
