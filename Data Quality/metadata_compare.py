@@ -30,7 +30,12 @@ import pandas as pd
 
 from utils.batch import DEFAULT_DATA_ROOT, utf8_console
 from utils.excel_functions import write_dataframes_to_excel_v2
+from datetime import datetime, timezone
+
 from utils.index_files import DATA_FILES, ESCWA_MEMBERS
+from utils.run_stamp import (code_version, file_input, make_run_manifest, batch_fingerprint, run_folder_name,
+                             new_run_folder, ensure_new, run_info_df, read_run_id, write_manifest_json,
+                             RUN_INFO_SHEET)   # Snippet 3
 
 escwa_members = ESCWA_MEMBERS
 
@@ -298,6 +303,26 @@ def pair_files(dir1, dir2, suffix1, suffix2):
     return {k: (f1[k], f2[k]) for k in common}, sorted(set(f1) - set(f2)), sorted(set(f2) - set(f1))
 
 
+def resolve_input_dir(folder: Path) -> Path:
+    """Use the folder itself if it holds metadata files, otherwise its newest run subfolder (Snippet 3 layout)."""
+    if any(folder.glob(f'{PREFIX}*.xlsx')):
+        return folder
+    runs = sorted(d for d in folder.iterdir() if d.is_dir() and any(d.glob(f'{PREFIX}*.xlsx')))
+    if not runs:
+        sys.exit(f'No {PREFIX}*.xlsx files in {folder} or its run subfolders')
+    return runs[-1]
+
+
+def pair_manifest(index_name, file1, file2, n1, n2, code, run_time):
+    inputs = []
+    for label, f in ((n1, file1), (n2, file2)):
+        item = file_input(f'metadata_{label}', f)
+        item['source_run_id'] = read_run_id(f)
+        inputs.append(item)
+    return make_run_manifest(index_id=index_name, edition=f'{n1}_vs_{n2}', code=code, inputs=inputs,
+                             options={'label1': n1, 'label2': n2}, run_time=run_time)
+
+
 def main(argv=None):
     utf8_console()
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -311,7 +336,8 @@ def main(argv=None):
     p.add_argument('--label2', default='snippet2', help='Column label for folder 2 (default: snippet2)')
     p.add_argument('--index', nargs='+', metavar='NAME', help='Only compare these indices')
     p.add_argument('--out', type=Path, default=DEFAULT_DATA_ROOT / 'Metadata Comparison - script',
-                   help='Output folder (default: <data>/Metadata Comparison - script)')
+                   help='Output folder (default: <data>/Metadata Comparison - script). '
+                        'Each run creates a new <date-time>_<fingerprint> subfolder.')
     p.add_argument('--per-index', action='store_true',
                    help='Also write one notebook-style comparison file per index')
     args = p.parse_args(argv)
@@ -320,6 +346,7 @@ def main(argv=None):
     for d in (args.dir1, args.dir2):
         if not d.is_dir():
             sys.exit(f'Folder not found: {d}')
+    args.dir1, args.dir2 = resolve_input_dir(args.dir1), resolve_input_dir(args.dir2)
     pairs, only1, only2 = pair_files(args.dir1, args.dir2, args.suffix1, args.suffix2)
     if args.index:
         missing = [i for i in args.index if i not in pairs]
@@ -331,7 +358,14 @@ def main(argv=None):
           + (f" | only in folder 2: {only2}" if only2 else ''))
     if not pairs:
         sys.exit('Nothing to compare.')
-    args.out.mkdir(parents=True, exist_ok=True)
+
+    # --- Snippet 3: fingerprint every pair, then a new run folder ---
+    code = code_version(__file__)
+    run_time = datetime.now(timezone.utc)
+    manifests = {k: pair_manifest(k, f1, f2, n1, n2, code, run_time) for k, (f1, f2) in pairs.items()}
+    batch_fp = batch_fingerprint(manifests.values())
+    run_dir = new_run_folder(args.out, run_folder_name(run_time, batch_fp))
+    print(f"Code version: {code['code_version']}" + chr(10) + f"Run folder:   {run_dir}")
 
     merged = {k: [] for k in ['Overall Summary', 'KPI Comparison', 'Country Comparison', 'Structure Checks']}
     overview, failed = [], []
@@ -350,15 +384,28 @@ def main(argv=None):
         if args.per_index:
             per = {k: v for k, v in res.items() if k != 'Structure Checks'}
             delta, shade = formatting(n1, n2, per)
-            write_dataframes_to_excel_v2(per, output_path=args.out / f'Metadata_Comparison_{index_name}_{n1}_vs_{n2}.xlsx',
+            per[RUN_INFO_SHEET] = run_info_df(manifests[index_name])
+            write_dataframes_to_excel_v2(per, output_path=ensure_new(run_dir / f'Metadata_Comparison_{index_name}_{n1}_vs_{n2}.xlsx'),
                                          delta_cols=delta, shade_cols=shade)
 
     if overview:
         sheets = {'Index Overview': pd.DataFrame(overview)}
         sheets.update({k: pd.concat(v, ignore_index=True) for k, v in merged.items()})
         delta, shade = formatting(n1, n2, sheets)
-        out_file = args.out / f'Metadata_Comparison_{n1}_vs_{n2}.xlsx'
+        # One Run Info table for the merged workbook: one row per index and input file
+        sheets[RUN_INFO_SHEET] = pd.DataFrame([
+            {'Index': k, 'run_id': m['run_id'], 'input_fingerprint': m['input_fingerprint'],
+             'role': i['role'], 'file': i['name'], 'sha256': i['sha256'], 'source_run_id': i['source_run_id']}
+            for k, m in manifests.items() for i in m['inputs']])
+        sheets[RUN_INFO_SHEET].insert(0, 'code_version', code['code_version'])
+        out_file = ensure_new(run_dir / f'Metadata_Comparison_{n1}_vs_{n2}.xlsx')
         write_dataframes_to_excel_v2(sheets, output_path=out_file, delta_cols=delta, shade_cols=shade)
+
+    write_manifest_json(run_dir, {
+        'run_folder': run_dir.name, 'run_timestamp_utc': run_time.isoformat(timespec='seconds'),
+        'script': Path(__file__).name, **code, 'batch_fingerprint': batch_fp,
+        'dir1': str(args.dir1), 'dir2': str(args.dir2),
+        'indices': [{**m, 'status': 'failed' if k in dict(failed) else 'ok'} for k, m in manifests.items()]})
 
     print('\n' + '=' * 70 + f'\nCOMPARISON SUMMARY: {len(overview)} compared, {len(failed)} failed\n' + '=' * 70)
     if overview:

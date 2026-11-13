@@ -63,3 +63,27 @@ UCE_VINTAGES = {
 
 ESCWA_MEMBERS = ['DZA', 'BHR', 'COM', 'DJI', 'EGY', 'IRQ', 'JOR', 'KWT', 'LBN', 'LBY', 'MRT',
                  'MAR', 'OMN', 'PSE', 'QAT', 'SAU', 'SOM', 'SDN', 'SYR', 'TUN', 'ARE', 'YEM']
+
+
+# Snippet 3: edition stamped on every output.
+# Default = simulator file name without 'raw_' and without a trailing copy number
+# ('raw_GII_2026 4.xlsx' -> 'GII_2026'). Override here when the file name is wrong or has no year.
+# Kept separate from UCE_VINTAGES on purpose: names clash across families
+# (index_12 'EPI_2024' is E-participation, while UCE 'EPI_2024' is the Environmental Performance Index).
+EDITION_OVERRIDES = {
+}
+
+
+def edition(index_name: str) -> str:
+    import re
+    if index_name in EDITION_OVERRIDES:
+        return EDITION_OVERRIDES[index_name]
+    stem = DATA_FILES[index_name][2].rsplit('.', 1)[0]
+    stem = re.sub(r'^raw_', '', stem)
+    stem = re.sub(r'\s+\d+$', '', stem)          # ' 1', ' 4' copy numbers
+    return stem.replace(' ', '')
+
+
+def edition_has_year(index_name: str) -> bool:
+    import re
+    return bool(re.search(r'(19|20)\d\d', edition(index_name)))

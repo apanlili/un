@@ -41,6 +41,7 @@ from utils.formatting_functions import (
 )
 from utils.excel_functions import write_dataframes_to_excel, write_country_sheets_to_excel
 from utils.ispar_profile import get_profile_data_ispar, MAJORITY_THRESHOLD
+from utils.run_stamp import run_info_df, append_run_info, ensure_new, file_input, RUN_INFO_SHEET   # Snippet 3
 
 OUTPUT_SUFFIX = ''
 
@@ -107,7 +108,7 @@ def compare_kpi_sets(historical_long, simulator_data, kpi_key):
     return report
 
 
-def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_path, args):
+def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_path, args, manifest):
     """Notebook cells 2-25 for one index. Returns the list of files written."""
     only_escwa_countries = args.escwa_only
     written = []
@@ -558,8 +559,10 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
             'Summary Stats by KPI': summary_stats_kpi,
             'Summary Stats by Country': summary_stats_country,
             'Raw Data Long format': data_long_escwa,
-            'Outliers data': df_outliers
+            'Outliers data': df_outliers,
+            RUN_INFO_SHEET: run_info_df(manifest),   # Snippet 3
         }
+        ensure_new(output_path)
         write_dataframes_to_excel(
             sheets,
             output_path=output_path,
@@ -598,8 +601,10 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
         output_path = args.out_dirs['ispar'] / f"Profile_Input_ISPAR_{index_name}{OUTPUT_SUFFIX}.xlsx"
         sheets = {
             'Profile_counts': profile_ispar,
-            'Older data table': country_data_tbl_ispar
+            'Older data table': country_data_tbl_ispar,
+            RUN_INFO_SHEET: run_info_df(manifest),   # Snippet 3
         }
+        ensure_new(output_path)
         write_dataframes_to_excel(
             sheets,
             output_path=output_path,
@@ -641,6 +646,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
         missing = [iso for iso in escwa_members if iso not in available_isos]
         print(f"{len(missing)} ISO values not available: {missing}")
 
+        ensure_new(output_path)
         write_country_sheets_to_excel(
             metadata_renamed,
             kpi_year,
@@ -652,6 +658,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
             index_title=index_title,
             title=title,
         )
+        append_run_info(output_path, manifest)   # Snippet 3
         written.append(output_path)
 
     return written
@@ -661,7 +668,7 @@ def main(argv=None):
     utf8_console()
     parser = build_parser(__doc__)
     args = resolve(parser.parse_args(argv))
-    return run_batch(run_index, args)
+    return run_batch(run_index, args, __file__)
 
 
 if __name__ == '__main__':
