@@ -177,8 +177,9 @@ Kosovo is also `KSV` in the FII 2025 and WPS 2025 simulator files, where the pre
 1. **Coverage table also in the metadata and ISPAR input workbooks**, not only before the country profiles, so it is saved even when profiles are not produced, and ISPAR can tell "not covered by this index" from "missing".
 2. **Audit adds a `Country` column** (name) to the reference table.
 3. **Canonical check left as `NOT_CHECKED`** until a canonical country list is provided; `metadata_SDG_2026.xlsx` was not used because it lists only the 171 SDG-index countries (it lacks e.g. PSE, XKX, GNQ).
-4. **No `Run Info` sheet in the ISPAR input workbook** (by decision): the ISPAR file holds only `Profile_counts`, `Older data table` and `Country Profile Coverage`. The run details (version, run ID, input files) are in the `Run Info` sheet of the metadata and country profile workbooks from the same run, which share the file date.
-5. **Exact-match check:** the shared check expects fractions, so Batch 2 passes it fractions; its printed results are unchanged.
+4. **ISPAR input saved without the run date** (by decision): `Profile_Input_ISPAR_<index>.xlsx` keeps a fixed name and is replaced on each run, so ISPAR always reads one file per index. The metadata and country profile workbooks keep the date and are never overwritten.
+5. **No `Run Info` sheet in the ISPAR input workbook** (by decision): the ISPAR file holds only `Profile_counts`, `Older data table` and `Country Profile Coverage`. The run details (version, run ID, input files) are in the `Run Info` sheet of the metadata and country profile workbooks from the same run, which share the file date.
+6. **Exact-match check:** the shared check expects fractions, so Batch 2 passes it fractions; its printed results are unchanged.
 
 ---
 

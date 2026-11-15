@@ -29,7 +29,7 @@ Examples
 
 Outputs (per index; <date> = run date, e.g. 20261115; _2, _3 ... for more runs that day)
   Metadata_Automation_<index>_<date>.xlsx    default on   (--no-metadata to turn off)
-  Profile_Input_ISPAR_<index>_<date>.xlsx    default off  (--ispar)
+  Profile_Input_ISPAR_<index>.xlsx           default off  (--ispar; no date, replaced each run)
   Profile_ESCWA_<index>_<date>.xlsx          default off  (--profile)
 Each workbook has a 'Run Info' sheet (run time, version 1.2, input files).
 --no-date (or --flat): old names without the date; existing files are overwritten.
@@ -706,13 +706,14 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
                                  'Conclusion', 'Assessed']
         country_data_tbl_ispar = country_data_tbl_ispar[country_data_tbl_cols]
 
-        output_path = output_path_for(args.out_dirs['ispar'], f"Profile_Input_ISPAR_{index_name}{OUTPUT_SUFFIX}", args.run_time, args.flat)   # Snippet 3: run date in the name
+        # ISPAR input: fixed name without the run date, replaced on each run (by decision)
+        output_path = output_path_for(args.out_dirs['ispar'], f"Profile_Input_ISPAR_{index_name}{OUTPUT_SUFFIX}", args.run_time, flat=True)
         sheets = {
             'Profile_counts': profile_ispar,
             'Older data table': country_data_tbl_ispar,
             COVERAGE_SHEET: country_coverage,   # Batch 2 Snippet 3 (last sheet; no Run Info in the ISPAR input, by decision)
         }
-        ensure_new(output_path, args.flat)
+        ensure_new(output_path, allow_overwrite=True)
         write_dataframes_to_excel(
             sheets,
             output_path=output_path,
