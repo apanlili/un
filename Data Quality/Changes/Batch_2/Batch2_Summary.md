@@ -13,7 +13,7 @@ Batch 2 is built on top of Batch 1: all Batch 1 changes are kept. Matching rules
 |---|---|---|
 | 1. Country-code audit (issue 8) | For every country code: in both files, simulator only or historical only; canonical check when a canonical list is supplied | `Country code audit` sheet, metadata workbook |
 | 2. Percentages (issue 10) | Every user-facing `%` / `_pct` column on a 0–100 scale; exported matching ratio labelled as a ratio, with a 0–100 percentage next to it | Metadata and country profile workbooks |
-| 3. Country coverage (issue 11) | One status per requested country, `AVAILABLE` or `NOT_COVERED_BY_INDEX_EDITION`; country sheets only for available countries | `Country coverage` sheet in the metadata, ISPAR input and country profile workbooks |
+| 3. Country Profile Coverage (issue 11) | One status per requested country, `AVAILABLE` or `NOT_COVERED_BY_INDEX_EDITION`; country sheets only for available countries | `Country Profile Coverage` sheet in the metadata, ISPAR input and country profile workbooks |
 
 ### Files
 | File | Contents |
@@ -99,7 +99,7 @@ Bucket counts are unchanged on all four indices.
 
 ---
 
-## 3. Country coverage (issue 11)
+## 3. Country Profile Coverage (issue 11)
 
 ### Change
 Before any output is written, each requested country (default: the 22 ESCWA members) gets one status:
@@ -109,7 +109,7 @@ Before any output is written, each requested country (default: the 22 ESCWA memb
 | `ISO`, `Country` | Requested country |
 | `profile_status` | `AVAILABLE` if the index edition has records for it, otherwise `NOT_COVERED_BY_INDEX_EDITION` |
 
-The table is saved as `Country coverage` in the metadata workbook, the ISPAR input workbook and the country profile workbook. Country profile sheets are written only for `AVAILABLE` countries, so no empty or broken profile is produced. The writer's skip message now uses `country_iso` (it referred to an undefined `country`).
+The table is saved as `Country Profile Coverage` in the metadata workbook, the ISPAR input workbook and the country profile workbook. Country profile sheets are written only for `AVAILABLE` countries, so no empty or broken profile is produced. The writer's skip message now uses `country_iso` (it referred to an undefined `country`).
 
 ### Result
 | Index | Somalia | Expected | Not covered (of 22 ESCWA members) | Country sheets |
@@ -177,7 +177,8 @@ Kosovo is also `KSV` in the FII 2025 and WPS 2025 simulator files, where the pre
 1. **Coverage table also in the metadata and ISPAR input workbooks**, not only before the country profiles, so it is saved even when profiles are not produced, and ISPAR can tell "not covered by this index" from "missing".
 2. **Audit adds a `Country` column** (name) to the reference table.
 3. **Canonical check left as `NOT_CHECKED`** until a canonical country list is provided; `metadata_SDG_2026.xlsx` was not used because it lists only the 171 SDG-index countries (it lacks e.g. PSE, XKX, GNQ).
-4. **Exact-match check:** the shared check expects fractions, so Batch 2 passes it fractions; its printed results are unchanged.
+4. **No `Run Info` sheet in the ISPAR input workbook** (by decision): the ISPAR file holds only `Profile_counts`, `Older data table` and `Country Profile Coverage`. The run details (version, run ID, input files) are in the `Run Info` sheet of the metadata and country profile workbooks from the same run, which share the file date.
+5. **Exact-match check:** the shared check expects fractions, so Batch 2 passes it fractions; its printed results are unchanged.
 
 ---
 

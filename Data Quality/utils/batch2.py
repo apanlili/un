@@ -15,7 +15,7 @@ Snippet 2 (roadmap issue 10) - percentages mean percentages:
   value_difference_ratio_inferred, with value_difference_pct_inferred = ratio x 100 next to it.
 
 Snippet 3 (roadmap issue 11) - explicit country coverage:
-- one status per requested country, AVAILABLE or NOT_COVERED_BY_INDEX_EDITION, saved as 'Country coverage';
+- one status per requested country, AVAILABLE or NOT_COVERED_BY_INDEX_EDITION, saved as 'Country Profile Coverage';
 - country profile sheets are generated only for AVAILABLE countries.
 """
 from __future__ import annotations
@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 
 AUDIT_SHEET = 'Country code audit'
-COVERAGE_SHEET = 'Country coverage'
+COVERAGE_SHEET = 'Country Profile Coverage'
 AVAILABLE = 'AVAILABLE'
 NOT_COVERED = 'NOT_COVERED_BY_INDEX_EDITION'
 
@@ -51,7 +51,7 @@ def load_canonical_codes(path: str | Path | None, iso_col: str = 'ISO', sheet_na
 def country_presence_audit(simulator: pd.DataFrame, historical: pd.DataFrame,
                            canonical_codes: Iterable[str] | None = None,
                            names: dict[str, str] | None = None, iso_col: str = 'ISO') -> pd.DataFrame:
-    """Country coverage in both directions (reference: country_presence_audit), plus the country name."""
+    """Country Profile Coverage in both directions (reference: country_presence_audit), plus the country name."""
     sim_codes, hist_codes = _codes(simulator, iso_col), _codes(historical, iso_col)
     canonical = None if canonical_codes is None else {str(x).strip().upper() for x in canonical_codes}
     rows = []
@@ -115,7 +115,7 @@ def profile_isos_to_generate(coverage: pd.DataFrame) -> list[str]:
 
 def print_coverage(coverage: pd.DataFrame) -> None:
     not_cov = coverage.loc[coverage['profile_status'] == NOT_COVERED, 'ISO'].tolist()
-    print(f"Country coverage: {len(coverage) - len(not_cov)} of {len(coverage)} requested countries AVAILABLE"
+    print(f"Country Profile Coverage: {len(coverage) - len(not_cov)} of {len(coverage)} requested countries AVAILABLE"
           + (f"; {NOT_COVERED}: {', '.join(not_cov)}" if not_cov else ''))
 
 

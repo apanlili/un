@@ -7,7 +7,7 @@ Batch 1 (as in metadata_batch1.py) plus the DQP Batch 2 changes (utils/batch2.py
 - Snippet 1 (country-code audit): 'Country code audit' sheet in the metadata workbook - every ISO in the
   simulator and/or historical file (BOTH / SIMULATOR_ONLY / HISTORICAL_ONLY); --canonical-codes FILE adds
   a VALID / UNKNOWN check against a canonical country list (NOT_CHECKED without one).
-- Snippet 3 (country coverage): 'Country coverage' sheet (AVAILABLE / NOT_COVERED_BY_INDEX_EDITION for each
+- Snippet 3 (country coverage): 'Country Profile Coverage' sheet (AVAILABLE / NOT_COVERED_BY_INDEX_EDITION for each
   requested country; default the 22 ESCWA members, or --countries SOM ...) in the metadata, ISPAR input and
   country profile workbooks. Country profile sheets are written only for AVAILABLE countries.
 
@@ -710,8 +710,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
         sheets = {
             'Profile_counts': profile_ispar,
             'Older data table': country_data_tbl_ispar,
-            COVERAGE_SHEET: country_coverage,   # Batch 2 Snippet 3
-            RUN_INFO_SHEET: run_info_df(manifest),   # Snippet 3
+            COVERAGE_SHEET: country_coverage,   # Batch 2 Snippet 3 (last sheet; no Run Info in the ISPAR input, by decision)
         }
         ensure_new(output_path, args.flat)
         write_dataframes_to_excel(
