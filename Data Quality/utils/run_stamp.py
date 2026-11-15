@@ -23,7 +23,8 @@ import pandas as pd
 RUN_INFO_SHEET = 'Run Info'
 
 ROLE_LABELS = {'historical': 'Historical file', 'simulator': 'Simulator file',
-               'uce_bounds': 'UCE bounds file', 'profile_template': 'Profile template'}
+               'uce_bounds': 'UCE bounds file', 'profile_template': 'Profile template',
+               'canonical_countries': 'Canonical country list'}
 
 
 # ---------------------------------------------------------------------------

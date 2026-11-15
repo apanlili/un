@@ -664,7 +664,7 @@ def write_country_sheets_to_excel(
             country_kpi_table = profile_country_kpi_tbl(metadata_automated, country_iso, quality_cols, kpi_year)
  
             if country_kpi_table.empty and skip_missing:
-                print(f"  ! skipped {country}: no rows in metadata")
+                print(f"  ! skipped {country_iso}: no rows in metadata")   # Batch 2: was {country} (undefined)
                 continue
  
             country_kpi_summary_output = profile_country_kpi_summary(country_kpi_table, diagnosis_assessment_template)

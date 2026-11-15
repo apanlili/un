@@ -138,6 +138,17 @@ def structure_checks(metadata_1, metadata_2, n1, n2):
     return pd.DataFrame(rows)
 
 
+def pct_scale(xlsx_path) -> int:
+    """Multiplier that puts a workbook's 'Summary Stats by Country' _pct columns on 0-100.
+    Version 1.2+ (Batch 2) already stores 0-100; earlier versions and files without Run Info store fractions."""
+    try:
+        info = pd.read_excel(xlsx_path, sheet_name=RUN_INFO_SHEET)
+        version = str(info.loc[info['Field'] == 'Version', 'Value'].iloc[0])
+        return 1 if tuple(int(x) for x in version.split('.')) >= (1, 2) else 100
+    except (ValueError, IndexError):
+        return 100
+
+
 def compare_pair(metadata_file_1_path, metadata_file_2_path, metadata_1_name, metadata_2_name):
     """Notebook cells 2-7 for one pair of files. Returns the comparison tables."""
     n1, n2 = metadata_1_name, metadata_2_name
@@ -213,18 +224,18 @@ def compare_pair(metadata_file_1_path, metadata_file_2_path, metadata_1_name, me
     ##############################################
     escwa_country_to_iso = {country: iso for iso, country in escwa_iso_to_country.items()}
 
-    def a_match(df, suffix):
+    def a_match(df, suffix, scale):
         """ESCWA rows only: ISO, Country and A_match_pct = A_total_pct + A1_cap_adjusted_match_pct (as %, 0-100)."""
         country = f'Country_{suffix}'
         out = df[df[country].isin(escwa_country_to_iso)].copy()
         out['ISO'] = out[country].map(escwa_country_to_iso)
         a_pct = pd.to_numeric(out[f'A_total_pct_{suffix}'], errors='coerce')
         a1_pct = pd.to_numeric(out[f'A1_cap_adjusted_match_pct_{suffix}'], errors='coerce')
-        out[f'A_match_pct_{suffix}'] = ((a_pct + a1_pct) * 100).round(2)   # sheet stores fractions
+        out[f'A_match_pct_{suffix}'] = ((a_pct + a1_pct) * scale).round(2)   # fractions before v1.2, 0-100 from v1.2
         return out[['ISO', country, f'A_match_pct_{suffix}']]
 
-    df1 = a_match(metadata_1[country_summary_sheet], n1)
-    df2 = a_match(metadata_2[country_summary_sheet], n2)
+    df1 = a_match(metadata_1[country_summary_sheet], n1, pct_scale(metadata_file_1_path))
+    df2 = a_match(metadata_2[country_summary_sheet], n2, pct_scale(metadata_file_2_path))
 
     # Join side by side on ISO, keeping the ESCWA list order
     order = [iso for iso in escwa_members if iso in set(df1['ISO']) | set(df2['ISO'])]
