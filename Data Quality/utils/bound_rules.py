@@ -2,7 +2,7 @@
 UCE authoritative cap/floor bounds for DQP (Batch 1 - Snippet 2).
 
 Source of truth: the UCE bounds extract generated from UCE standardized
-metadata (e.g. Changes/DQP_UCE_Bounds_Extract_v41_2026-11-01.csv). DQP does
+metadata (e.g. Changes/Batch_1/DQP_UCE_Bounds_Extract_v41_2026-11-01.csv). DQP does
 not maintain its own cap/floor list.
 
 Minimal integration:
@@ -13,6 +13,8 @@ Minimal integration:
   recent historical value is beyond it.
 - Calculation-stage bounds (SCORE_*) are only flagged (uce_beyond_bound),
   never turned into A1.
+- A1 is further limited to KPIs whose DQP interpretation of the bound has been
+  reviewed (REVIEWED_A1_KPIS). Every other bound is loaded and flagged only.
 """
 
 from __future__ import annotations
@@ -25,6 +27,14 @@ import pandas as pd
 # UCE semantics whose bound is applied to the report/raw value
 # (stage REPORT_VALUE in the Batch 1 regression runner).
 A1_ELIGIBLE_SEMANTICS = {"RAW_PRETRANSFORM_CLIP", "RAW_TRUNCATE"}
+
+# Reviewed A1 list: UCE vintage -> KPI IDs whose bound has a reviewed DQP A1 interpretation.
+# "Use A1 only where the DQP interpretation of that bound has been reviewed" (Batch 1 instructions).
+# A KPI must be on this list AND have an A1-eligible semantics to produce A1.
+# Add KPIs here only after their interpretation has been reviewed.
+REVIEWED_A1_KPIS = {
+    "EGDI_2024": {"271", "274", "280"},   # EGDI_A1_Reconciliation_Explained_2026-10-26.xlsx
+}
 
 UCE_BOUND_COLS = ["KPI ID", "uce_floor", "uce_cap", "uce_semantics", "uce_a1_eligible"]
 
@@ -43,6 +53,7 @@ def load_uce_bounds(
     csv_path: str | Path,
     vintage: str | None,
     a1_eligible_semantics: set[str] = A1_ELIGIBLE_SEMANTICS,
+    reviewed_a1_kpis: dict[str, set[str]] = REVIEWED_A1_KPIS,
 ) -> pd.DataFrame:
     """Load UCE bounds for one vintage as one row per KPI.
 
@@ -51,6 +62,8 @@ def load_uce_bounds(
     csv_path : path to the UCE bounds extract CSV.
     vintage : UCE vintage code, e.g. 'EGDI_2024'. None returns an empty table.
     a1_eligible_semantics : uce_semantics values allowed to produce A1.
+    reviewed_a1_kpis : vintage -> KPI IDs with a reviewed A1 interpretation.
+        uce_a1_eligible is 1 only for KPIs on this list with an eligible semantics.
 
     Returns
     -------
@@ -79,7 +92,9 @@ def load_uce_bounds(
         lambda s: "/".join(sorted(s.unique()))
     )
     out = wide[["uce_floor", "uce_cap"]].join(semantics).reset_index()
-    out["uce_a1_eligible"] = out["uce_semantics"].isin(a1_eligible_semantics).astype(int)
+    reviewed = {_norm_keyid(k) for k in reviewed_a1_kpis.get(vintage, set())}
+    out["uce_a1_eligible"] = (out["uce_semantics"].isin(a1_eligible_semantics)
+                              & out["KPI ID"].isin(reviewed)).astype(int)
     out.columns.name = None
     return out[UCE_BOUND_COLS]
 

@@ -2,10 +2,10 @@
 Metadata Compare - script version of 'Metadata Compare.ipynb', run over two folders.
 
 Pairs Metadata_Automation_<index>.xlsx files from two folders by index (by default
-the original script outputs vs the Snippet 2 outputs) and compares each pair the
+the original script outputs vs the Batch 1 outputs) and compares each pair the
 way the notebook does:
   Overall Summary    - bucket counts / % side by side + percentage-point change
-  KPI Comparison     - Bucket A % per KPI (+ A1 and A+A1, which Snippet 2 changes)
+  KPI Comparison     - Bucket A % per KPI (+ A1 and A+A1, which Batch 1 changes)
   Country Comparison - ESCWA A match % (A + A1) per country
 Delta = folder 2 minus folder 1, in percentage points.
 
@@ -328,12 +328,12 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--dir1', type=Path, default=DEFAULT_DATA_ROOT / 'Metadata Automation - script',
                    help='Folder 1 (baseline). Default: <data>/Metadata Automation - script')
-    p.add_argument('--dir2', type=Path, default=DEFAULT_DATA_ROOT / 'Metadata Automation Snippet2 - script',
-                   help='Folder 2 (compared). Default: <data>/Metadata Automation Snippet2 - script')
+    p.add_argument('--dir2', type=Path, default=DEFAULT_DATA_ROOT / 'Metadata Automation Batch 1 - script',
+                   help='Folder 2 (compared). Default: <data>/Metadata Automation Batch 1 - script')
     p.add_argument('--suffix1', default='', help="File name suffix in folder 1 (default: none)")
-    p.add_argument('--suffix2', default='_snippet2', help="File name suffix in folder 2 (default: _snippet2)")
+    p.add_argument('--suffix2', default='_batch1', help="File name suffix in folder 2 (default: _batch1)")
     p.add_argument('--label1', default='original', help='Column label for folder 1 (default: original)')
-    p.add_argument('--label2', default='snippet2', help='Column label for folder 2 (default: snippet2)')
+    p.add_argument('--label2', default='batch1', help='Column label for folder 2 (default: batch1)')
     p.add_argument('--index', nargs='+', metavar='NAME', help='Only compare these indices')
     p.add_argument('--out', type=Path, default=DEFAULT_DATA_ROOT / 'Metadata Comparison - script',
                    help='Output folder (default: <data>/Metadata Comparison - script). '

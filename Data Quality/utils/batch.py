@@ -1,5 +1,5 @@
 """
-Command line + batch loop shared by metadata_automation.py and metadata_snippet2.py.
+Command line + batch loop shared by metadata_automation.py and metadata_batch1.py.
 
 Each script supplies a `run_index(index_name, hist_file, sim_file, args)` function;
 this module parses the options, resolves folders, picks the indices whose files

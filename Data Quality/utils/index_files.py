@@ -1,5 +1,5 @@
 """
-Index -> data file mapping used by metadata_automation.py and metadata_snippet2.py.
+Index -> data file mapping used by metadata_automation.py and metadata_batch1.py.
 
 Same shape as `data_files_dict` in the Metadata Automation notebooks:
     index_name : [historical file, metadata file (unused), simulator file]

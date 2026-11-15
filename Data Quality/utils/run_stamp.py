@@ -1,7 +1,7 @@
 """
 DQP Batch 1 - Snippet 3: reproducible run stamp and non-overwriting outputs.
 
-Based on make_run_manifest() in Changes/DQP_Batch1_Reference_Snippets_v2_2026-11-01.py,
+Based on make_run_manifest() in Changes/Batch_1/DQP_Batch1_Reference_Snippets_v2_2026-11-01.py,
 with these deliberate differences:
 - The fingerprint also covers the run options that change results (e.g. legacy vs UCE A1,
   ESCWA-only), not only the input files.

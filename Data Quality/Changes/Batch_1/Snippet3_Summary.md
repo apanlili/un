@@ -1,7 +1,7 @@
 # DQP Batch 1 — Snippet 3 integration summary
 **Date:** 13 November 2026
 **Scope:** Snippet 3 — reproducible run stamp and non-overwriting outputs.
-**Status:** Implemented in the script versions of the pipeline (`metadata_automation.py`, `metadata_snippet2.py`, `metadata_compare.py`) and tested. Not committed yet.
+**Status:** Implemented in the script versions of the pipeline (`metadata_automation.py`, `metadata_batch1.py`, `metadata_compare.py`) and tested. Committed in `a856088`.
 
 Snippet 3 is an infrastructure change only. No DQP classification logic changed: on EGDI 2024 (`index_9`), every sheet of all three output files (metadata, ISPAR input, country profiles) is identical, cell for cell, to the output from before Snippet 3, apart from the new `Run Info` sheet.
 
@@ -12,10 +12,10 @@ Snippet 3 is an infrastructure change only. No DQP classification logic changed:
 ### Files
 | File | Change |
 |---|---|
-| `utils/run_stamp.py` | **New.** Run stamp helpers, based on `make_run_manifest` in `DQP_Batch1_Reference_Snippets_v2_2026-11-01.py`. |
+| `utils/run_stamp.py` | **New.** Run stamp helpers, based on `make_run_manifest` in `DQP_Batch1_Reference_Snippets_v2_2026-11-01.py` (this folder). |
 | `utils/batch.py` | Shared batch runner. Fingerprints every index before the run starts, creates the run folder, passes each index's manifest to the pipeline and writes `manifest.json`. |
 | `metadata_automation.py` | Adds a `Run Info` sheet to every output workbook and refuses to overwrite an existing file. |
-| `metadata_snippet2.py` | Same as above. The Snippet 2 settings (A1 mode, UCE vintage, UCE bounds CSV) are part of the fingerprint. |
+| `metadata_batch1.py` (was `metadata_snippet2.py`) | Same as above. The Snippet 2 settings (A1 mode, UCE vintage, UCE bounds CSV) are part of the fingerprint. |
 | `metadata_compare.py` | Same run folder and `Run Info` treatment. Reads the newest run folder of each input folder and records the run ID of every file it compares. |
 | `utils/index_files.py` | Adds an edition per index (`edition()`), taken from the simulator file name, with `EDITION_OVERRIDES` for corrections. |
 

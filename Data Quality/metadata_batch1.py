@@ -1,25 +1,27 @@
 """
-Metadata Automation - Snippet 2 (UCE cap/floor bounds) - script version of
-'Metadata Automation - Snippet 2.ipynb'.
+Metadata Automation - Batch 1 - script version of 'Metadata Automation - Batch 1.ipynb'.
 
-Same as metadata_automation.py, plus DQP Batch 1 Snippet 2:
-- Caps/floors come from the UCE bounds extract (Changes/DQP_UCE_Bounds_Extract_v41_2026-11-01.csv)
+Same as metadata_automation.py, plus the DQP Batch 1 changes
+(Snippet 1, negative/zero matching, is in the shared utils and applies to both).
+Snippet 2 (UCE cap/floor bounds):
+- Caps/floors come from the UCE bounds extract (Changes/Batch_1/DQP_UCE_Bounds_Extract_v41_2026-11-01.csv)
   via utils/bound_rules.py.
 - A1 is evaluated before A/B is finalised and takes precedence (A1_overrode_A_B records overridden matches).
-- Only report-value bounds (RAW_PRETRANSFORM_CLIP, RAW_TRUNCATE) can produce A1; all other bounds are
-  flagged in uce_beyond_bound only.
+- Only report-value bounds (RAW_PRETRANSFORM_CLIP, RAW_TRUNCATE) on the reviewed A1 list
+  (utils/bound_rules.py REVIEWED_A1_KPIS) can produce A1; all other bounds are flagged in uce_beyond_bound only.
 - Legacy A1 logic is kept and runs with --legacy-a1.
-- Outputs are written with the _snippet2 suffix (change with --suffix).
+- Outputs are written with the _batch1 suffix (change with --suffix).
+Snippet 3 (run stamp, non-overwriting outputs): see utils/run_stamp.py.
 
 Examples
 --------
-  python metadata_snippet2.py
-  python metadata_snippet2.py --hist "D:/data/Historical" --sim "D:/data/Simulator Data" --index index_9 --ispar
+  python metadata_batch1.py
+  python metadata_batch1.py --hist "D:/data/Historical" --sim "D:/data/Simulator Data" --index index_9 --ispar
 
 Outputs (per index)
-  Metadata_Automation_<index>_snippet2.xlsx    default on   (--no-metadata to turn off)
-  Profile_Input_ISPAR_<index>_snippet2.xlsx    default off  (--ispar)
-  Profile_ESCWA_<index>_snippet2.xlsx          default off  (--profile)
+  Metadata_Automation_<index>_batch1.xlsx    default on   (--no-metadata to turn off)
+  Profile_Input_ISPAR_<index>_batch1.xlsx    default off  (--ispar)
+  Profile_ESCWA_<index>_batch1.xlsx          default off  (--profile)
 """
 import os
 os.environ.setdefault('MPLBACKEND', 'Agg')   # outlier plots are rendered off-screen
@@ -45,7 +47,7 @@ from utils.excel_functions import write_dataframes_to_excel, write_country_sheet
 from utils.ispar_profile import get_profile_data_ispar, MAJORITY_THRESHOLD
 from utils.run_stamp import run_info_df, append_run_info, ensure_new, file_input, RUN_INFO_SHEET   # Snippet 3
 
-DEFAULT_UCE_BOUNDS_CSV = Path(__file__).resolve().parent / 'Changes' / 'DQP_UCE_Bounds_Extract_v41_2026-11-01.csv'
+DEFAULT_UCE_BOUNDS_CSV = Path(__file__).resolve().parent / 'Changes' / 'Batch_1' / 'DQP_UCE_Bounds_Extract_v41_2026-11-01.csv'
 
 escwa_members = ESCWA_MEMBERS
 
@@ -732,8 +734,8 @@ def main(argv=None):
                    help='Use the legacy inferred-cap A1 logic instead of the UCE bounds extract')
     g.add_argument('--uce-csv', type=Path, default=DEFAULT_UCE_BOUNDS_CSV,
                    help=f'UCE bounds extract CSV (default: {DEFAULT_UCE_BOUNDS_CSV.relative_to(DEFAULT_UCE_BOUNDS_CSV.parents[1])})')
-    g.add_argument('--suffix', default='_snippet2',
-                   help="Output file name suffix (default: _snippet2; pass '' for none)")
+    g.add_argument('--suffix', default='_batch1',
+                   help="Output file name suffix (default: _batch1; pass '' for none)")
     args = resolve(parser.parse_args(argv))
     if not args.legacy_a1 and not args.uce_csv.is_file():
         sys.exit(f'UCE bounds CSV not found: {args.uce_csv}')
