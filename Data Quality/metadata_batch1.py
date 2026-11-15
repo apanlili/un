@@ -4,13 +4,13 @@ Metadata Automation - Batch 1 - script version of 'Metadata Automation - Batch 1
 Same as metadata_automation.py, plus the DQP Batch 1 changes
 (Snippet 1, negative/zero matching, is in the shared utils and applies to both).
 Snippet 2 (UCE cap/floor bounds):
-- Caps/floors come from the UCE bounds extract (Changes/Batch_1/DQP_UCE_Bounds_Extract_v41_2026-11-01.csv)
+- Caps/floors come from the UCE bounds extract (<data-root>/Reference Data/DQP_UCE_Bounds_Extract_v41_2026-11-01.csv)
   via utils/bound_rules.py.
 - A1 is evaluated before A/B is finalised and takes precedence (A1_overrode_A_B records overridden matches).
 - Only report-value bounds (RAW_PRETRANSFORM_CLIP, RAW_TRUNCATE) on the reviewed A1 list
   (utils/bound_rules.py REVIEWED_A1_KPIS) can produce A1; all other bounds are flagged in uce_beyond_bound only.
 - Legacy A1 logic is kept and runs with --legacy-a1.
-- Outputs are written with the _batch1 suffix (change with --suffix).
+- Output names have no Batch 1 suffix (add one with --suffix); version 1.1 is in the Run Info sheet.
 Snippet 3 (run stamp, non-overwriting outputs): see utils/run_stamp.py.
 
 Examples
@@ -18,10 +18,12 @@ Examples
   python metadata_batch1.py
   python metadata_batch1.py --hist "D:/data/Historical" --sim "D:/data/Simulator Data" --index index_9 --ispar
 
-Outputs (per index)
-  Metadata_Automation_<index>_batch1.xlsx    default on   (--no-metadata to turn off)
-  Profile_Input_ISPAR_<index>_batch1.xlsx    default off  (--ispar)
-  Profile_ESCWA_<index>_batch1.xlsx          default off  (--profile)
+Outputs (per index; <date> = run date, e.g. 20261115; _2, _3 ... for more runs that day)
+  Metadata_Automation_<index>_<date>.xlsx    default on   (--no-metadata to turn off)
+  Profile_Input_ISPAR_<index>_<date>.xlsx    default off  (--ispar)
+  Profile_ESCWA_<index>_<date>.xlsx          default off  (--profile)
+Each workbook has a 'Run Info' sheet (run time, version 1.1, input files, settings).
+--no-date (or --flat): old names without the date; existing files are overwritten.
 """
 import os
 os.environ.setdefault('MPLBACKEND', 'Agg')   # outlier plots are rendered off-screen
@@ -45,9 +47,13 @@ from utils.formatting_functions import (
 )
 from utils.excel_functions import write_dataframes_to_excel, write_country_sheets_to_excel
 from utils.ispar_profile import get_profile_data_ispar, MAJORITY_THRESHOLD
-from utils.run_stamp import run_info_df, append_run_info, ensure_new, file_input, RUN_INFO_SHEET   # Snippet 3
+from utils.run_stamp import (run_info_df, append_run_info, ensure_new, file_input, RUN_INFO_SHEET,
+                             output_path as output_path_for)   # Snippet 3
 
-DEFAULT_UCE_BOUNDS_CSV = Path(__file__).resolve().parent / 'Changes' / 'Batch_1' / 'DQP_UCE_Bounds_Extract_v41_2026-11-01.csv'
+UCE_BOUNDS_CSV_NAME = 'DQP_UCE_Bounds_Extract_v41_2026-11-01.csv'   # read from <data-root>/Reference Data/
+
+# Internal version (Snippet 3): original pipeline 1.0, Batch 1 1.1. Raise it when the code changes.
+VERSION = '1.1'
 
 escwa_members = ESCWA_MEMBERS
 
@@ -608,7 +614,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
     #### Metadata Automation Output to file ######
     ##############################################
     if args.write_metadata:
-        output_path = args.out_dirs['metadata'] / f"Metadata_Automation_{index_name}{OUTPUT_SUFFIX}.xlsx"
+        output_path = output_path_for(args.out_dirs['metadata'], f"Metadata_Automation_{index_name}{OUTPUT_SUFFIX}", args.run_time, args.flat)   # Snippet 3: run date in the name
 
         # only ESCWA countries in long format
         data_long_escwa = historical_kpi_data_long_escwa if only_escwa_countries else historical_kpi_data_long
@@ -624,7 +630,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
             'Outliers data': df_outliers,
             RUN_INFO_SHEET: run_info_df(manifest),   # Snippet 3
         }
-        ensure_new(output_path)
+        ensure_new(output_path, args.flat)
         write_dataframes_to_excel(
             sheets,
             output_path=output_path,
@@ -660,13 +666,13 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
                                  'Conclusion', 'Assessed']
         country_data_tbl_ispar = country_data_tbl_ispar[country_data_tbl_cols]
 
-        output_path = args.out_dirs['ispar'] / f"Profile_Input_ISPAR_{index_name}{OUTPUT_SUFFIX}.xlsx"
+        output_path = output_path_for(args.out_dirs['ispar'], f"Profile_Input_ISPAR_{index_name}{OUTPUT_SUFFIX}", args.run_time, args.flat)   # Snippet 3: run date in the name
         sheets = {
             'Profile_counts': profile_ispar,
             'Older data table': country_data_tbl_ispar,
             RUN_INFO_SHEET: run_info_df(manifest),   # Snippet 3
         }
-        ensure_new(output_path)
+        ensure_new(output_path, args.flat)
         write_dataframes_to_excel(
             sheets,
             output_path=output_path,
@@ -692,7 +698,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
         summary_stats_kpi_profile = profile_quality_summary_table(metadata_renamed, quality_cols, groupby=['KPI ID', 'Series Name'], pct_only=True)
 
         index_title = index_name
-        output_path = args.out_dirs['profile'] / f"Profile_ESCWA_{index_title}{OUTPUT_SUFFIX}.xlsx"
+        output_path = output_path_for(args.out_dirs['profile'], f"Profile_ESCWA_{index_title}{OUTPUT_SUFFIX}", args.run_time, args.flat)   # Snippet 3: run date in the name
         title = 'General Overview: Overall Quality of Index'
 
         # constant across every sheet, in the order they should be stacked
@@ -708,7 +714,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
         missing = [iso for iso in escwa_members if iso not in available_isos]
         print(f"{len(missing)} ISO values not available: {missing}")
 
-        ensure_new(output_path)
+        ensure_new(output_path, args.flat)
         write_country_sheets_to_excel(
             metadata_renamed,
             kpi_year,
@@ -720,7 +726,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
             index_title=index_title,
             title=title,
         )
-        append_run_info(output_path, manifest)   # Snippet 3
+        append_run_info(output_path, run_info_df(manifest))   # Snippet 3
         written.append(output_path)
 
     return written
@@ -732,11 +738,12 @@ def main(argv=None):
     g = parser.add_argument_group('snippet 2 (UCE bounds)')
     g.add_argument('--legacy-a1', action='store_true',
                    help='Use the legacy inferred-cap A1 logic instead of the UCE bounds extract')
-    g.add_argument('--uce-csv', type=Path, default=DEFAULT_UCE_BOUNDS_CSV,
-                   help=f'UCE bounds extract CSV (default: {DEFAULT_UCE_BOUNDS_CSV.relative_to(DEFAULT_UCE_BOUNDS_CSV.parents[1])})')
-    g.add_argument('--suffix', default='_batch1',
-                   help="Output file name suffix (default: _batch1; pass '' for none)")
+    g.add_argument('--uce-csv', type=Path,
+                   help=f'UCE bounds extract CSV (default: <data-root>/Reference Data/{UCE_BOUNDS_CSV_NAME})')
+    g.add_argument('--suffix', default='',
+                   help="Output file name suffix (default: none)")
     args = resolve(parser.parse_args(argv))
+    args.uce_csv = args.uce_csv or args.data_root / 'Reference Data' / UCE_BOUNDS_CSV_NAME
     if not args.legacy_a1 and not args.uce_csv.is_file():
         sys.exit(f'UCE bounds CSV not found: {args.uce_csv}')
     # Snippet 3: Snippet 2 settings that change results are part of the fingerprint
@@ -747,7 +754,7 @@ def main(argv=None):
         return {'a1_logic': 'legacy' if args.legacy_a1 else 'uce',
                 'uce_vintage': None if args.legacy_a1 else UCE_VINTAGES.get(index_name)}
 
-    return run_batch(run_index, args, __file__, stamp_inputs, stamp_options)
+    return run_batch(run_index, args, __file__, VERSION, stamp_inputs, stamp_options)
 
 
 if __name__ == '__main__':

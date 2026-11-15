@@ -2,7 +2,7 @@
 UCE authoritative cap/floor bounds for DQP (Batch 1 - Snippet 2).
 
 Source of truth: the UCE bounds extract generated from UCE standardized
-metadata (e.g. Changes/Batch_1/DQP_UCE_Bounds_Extract_v41_2026-11-01.csv). DQP does
+metadata (e.g. <data folder>/Reference Data/DQP_UCE_Bounds_Extract_v41_2026-11-01.csv). DQP does
 not maintain its own cap/floor list.
 
 Minimal integration:

@@ -16,10 +16,12 @@ Examples
   # see which indices would run
   python metadata_automation.py --hist ... --sim ... --list
 
-Outputs (per index)
-  Metadata_Automation_<index>.xlsx    default on   (--no-metadata to turn off)
-  Profile_Input_ISPAR_<index>.xlsx    default off  (--ispar)
-  Profile_ESCWA_<index>.xlsx          default off  (--profile)
+Outputs (per index; <date> = run date, e.g. 20261115; _2, _3 ... for more runs that day)
+  Metadata_Automation_<index>_<date>.xlsx    default on   (--no-metadata to turn off)
+  Profile_Input_ISPAR_<index>_<date>.xlsx    default off  (--ispar)
+  Profile_ESCWA_<index>_<date>.xlsx          default off  (--profile)
+Each workbook has a 'Run Info' sheet (run time, version 1.0, input files, settings).
+--no-date (or --flat): old names without the date; existing files are overwritten.
 """
 import os
 os.environ.setdefault('MPLBACKEND', 'Agg')   # outlier plots are rendered off-screen
@@ -41,9 +43,13 @@ from utils.formatting_functions import (
 )
 from utils.excel_functions import write_dataframes_to_excel, write_country_sheets_to_excel
 from utils.ispar_profile import get_profile_data_ispar, MAJORITY_THRESHOLD
-from utils.run_stamp import run_info_df, append_run_info, ensure_new, file_input, RUN_INFO_SHEET   # Snippet 3
+from utils.run_stamp import (run_info_df, append_run_info, ensure_new, file_input, RUN_INFO_SHEET,
+                             output_path as output_path_for)   # Snippet 3
 
 OUTPUT_SUFFIX = ''
+
+# Internal version (Snippet 3): original pipeline 1.0, Batch 1 1.1. Raise it when the code changes.
+VERSION = '1.0'
 
 escwa_members = ESCWA_MEMBERS
 
@@ -546,7 +552,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
     #### Metadata Automation Output to file ######
     ##############################################
     if args.write_metadata:
-        output_path = args.out_dirs['metadata'] / f"Metadata_Automation_{index_name}{OUTPUT_SUFFIX}.xlsx"
+        output_path = output_path_for(args.out_dirs['metadata'], f"Metadata_Automation_{index_name}{OUTPUT_SUFFIX}", args.run_time, args.flat)   # Snippet 3: run date in the name
 
         # only ESCWA countries in long format
         data_long_escwa = historical_kpi_data_long_escwa if only_escwa_countries else historical_kpi_data_long
@@ -562,7 +568,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
             'Outliers data': df_outliers,
             RUN_INFO_SHEET: run_info_df(manifest),   # Snippet 3
         }
-        ensure_new(output_path)
+        ensure_new(output_path, args.flat)
         write_dataframes_to_excel(
             sheets,
             output_path=output_path,
@@ -598,13 +604,13 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
                                  'Conclusion', 'Assessed']
         country_data_tbl_ispar = country_data_tbl_ispar[country_data_tbl_cols]
 
-        output_path = args.out_dirs['ispar'] / f"Profile_Input_ISPAR_{index_name}{OUTPUT_SUFFIX}.xlsx"
+        output_path = output_path_for(args.out_dirs['ispar'], f"Profile_Input_ISPAR_{index_name}{OUTPUT_SUFFIX}", args.run_time, args.flat)   # Snippet 3: run date in the name
         sheets = {
             'Profile_counts': profile_ispar,
             'Older data table': country_data_tbl_ispar,
             RUN_INFO_SHEET: run_info_df(manifest),   # Snippet 3
         }
-        ensure_new(output_path)
+        ensure_new(output_path, args.flat)
         write_dataframes_to_excel(
             sheets,
             output_path=output_path,
@@ -630,7 +636,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
         summary_stats_kpi_profile = profile_quality_summary_table(metadata_renamed, quality_cols, groupby=['KPI ID', 'Series Name'], pct_only=True)
 
         index_title = index_name
-        output_path = args.out_dirs['profile'] / f"Profile_ESCWA_{index_title}{OUTPUT_SUFFIX}.xlsx"
+        output_path = output_path_for(args.out_dirs['profile'], f"Profile_ESCWA_{index_title}{OUTPUT_SUFFIX}", args.run_time, args.flat)   # Snippet 3: run date in the name
         title = 'General Overview: Overall Quality of Index'
 
         # constant across every sheet, in the order they should be stacked
@@ -646,7 +652,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
         missing = [iso for iso in escwa_members if iso not in available_isos]
         print(f"{len(missing)} ISO values not available: {missing}")
 
-        ensure_new(output_path)
+        ensure_new(output_path, args.flat)
         write_country_sheets_to_excel(
             metadata_renamed,
             kpi_year,
@@ -658,7 +664,7 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
             index_title=index_title,
             title=title,
         )
-        append_run_info(output_path, manifest)   # Snippet 3
+        append_run_info(output_path, run_info_df(manifest))   # Snippet 3
         written.append(output_path)
 
     return written
@@ -668,7 +674,7 @@ def main(argv=None):
     utf8_console()
     parser = build_parser(__doc__)
     args = resolve(parser.parse_args(argv))
-    return run_batch(run_index, args, __file__)
+    return run_batch(run_index, args, __file__, VERSION)
 
 
 if __name__ == '__main__':

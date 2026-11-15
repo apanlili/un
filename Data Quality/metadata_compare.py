@@ -15,7 +15,7 @@ All indices are merged into one workbook (Index column first), with an
 Examples
 --------
   python metadata_compare.py
-  python metadata_compare.py --dir1 "D:/out/a" --dir2 "D:/out/b" --suffix2 "" --label1 run_a --label2 run_b
+  python metadata_compare.py --dir1 "D:/out/a" --dir2 "D:/out/b" --label1 run_a --label2 run_b
   python metadata_compare.py --per-index        # also one notebook-style file per index
 """
 import os
@@ -30,12 +30,14 @@ import pandas as pd
 
 from utils.batch import DEFAULT_DATA_ROOT, utf8_console
 from utils.excel_functions import write_dataframes_to_excel_v2
-from datetime import datetime, timezone
+from datetime import datetime
 
 from utils.index_files import DATA_FILES, ESCWA_MEMBERS
-from utils.run_stamp import (code_version, file_input, make_run_manifest, batch_fingerprint, run_folder_name,
-                             new_run_folder, ensure_new, run_info_df, read_run_id, write_manifest_json,
-                             RUN_INFO_SHEET)   # Snippet 3
+from utils.run_stamp import (file_input, make_run_manifest, ensure_new, read_run_id, RUN_INFO_SHEET,
+                             output_path as output_path_for)   # Snippet 3
+
+# Internal version of this comparison script (Snippet 3)
+VERSION = '1.0'
 
 escwa_members = ESCWA_MEMBERS
 
@@ -284,18 +286,20 @@ def formatting(n1, n2, sheets):
 
 
 def pair_files(dir1, dir2, suffix1, suffix2):
-    """{index: (file1, file2)} for indices present in both folders, in utils/index_files.py order."""
+    """{index: (file1, file2)} for indices present in both folders, in utils/index_files.py order.
+    With several files for one index (one per run date), the newest is used."""
     def keyed(folder, suffix):
         out = {}
         for f in folder.glob(f'{PREFIX}*.xlsx'):
             if f.name.startswith('~$'):
                 continue
-            stem = f.stem[len(PREFIX):]
+            stem = re.sub(r'_\d{8}(_\d+)?$', '', f.stem[len(PREFIX):])   # Snippet 3: run date (+ _2, _3 ...)
             if suffix:
                 if not stem.endswith(suffix):
                     continue
                 stem = stem[:-len(suffix)]
-            out[stem] = f
+            if stem not in out or f.stat().st_mtime > out[stem].stat().st_mtime:
+                out[stem] = f                                              # newest file per index
         return out
     f1, f2 = keyed(dir1, suffix1), keyed(dir2, suffix2)
     order = list(DATA_FILES)
@@ -303,24 +307,31 @@ def pair_files(dir1, dir2, suffix1, suffix2):
     return {k: (f1[k], f2[k]) for k in common}, sorted(set(f1) - set(f2)), sorted(set(f2) - set(f1))
 
 
-def resolve_input_dir(folder: Path) -> Path:
-    """Use the folder itself if it holds metadata files, otherwise its newest run subfolder (Snippet 3 layout)."""
-    if any(folder.glob(f'{PREFIX}*.xlsx')):
-        return folder
-    runs = sorted(d for d in folder.iterdir() if d.is_dir() and any(d.glob(f'{PREFIX}*.xlsx')))
-    if not runs:
-        sys.exit(f'No {PREFIX}*.xlsx files in {folder} or its run subfolders')
-    return runs[-1]
-
-
-def pair_manifest(index_name, file1, file2, n1, n2, code, run_time):
+def pair_manifest(index_name, file1, file2, n1, n2, run_time):
     inputs = []
     for label, f in ((n1, file1), (n2, file2)):
-        item = file_input(f'metadata_{label}', f)
+        item = file_input(label, f)
         item['source_run_id'] = read_run_id(f)
         inputs.append(item)
-    return make_run_manifest(index_id=index_name, edition=f'{n1}_vs_{n2}', code=code, inputs=inputs,
+    return make_run_manifest(index_id=index_name, edition=f'{n1}_vs_{n2}', version=VERSION,
+                             script=Path(__file__).name, inputs=inputs,
                              options={'label1': n1, 'label2': n2}, run_time=run_time)
+
+
+def compare_run_info(manifests, run_time, dir1, dir2):
+    """Readable (Field, Value) Run Info for a comparison workbook: the run, then each compared file
+    with the run ID from its own Run Info (which includes its version)."""
+    rows = [('Run time', run_time.isoformat(sep=' ', timespec='seconds')),
+            ('Script', Path(__file__).name),
+            ('Version', VERSION),
+            ('Folder 1', str(dir1)),
+            ('Folder 2', str(dir2))]
+    for k, m in manifests.items():
+        for i in m['inputs']:
+            src = i['source_run_id'] or 'no Run Info (made before Snippet 3)'
+            rows.append((f"{k}: {i['role']} file",
+                         f"{i['name']}  |  modified {i['modified']}  |  run {src}"))
+    return pd.DataFrame(rows, columns=['Field', 'Value'])
 
 
 def main(argv=None):
@@ -331,13 +342,15 @@ def main(argv=None):
     p.add_argument('--dir2', type=Path, default=DEFAULT_DATA_ROOT / 'Metadata Automation Batch 1 - script',
                    help='Folder 2 (compared). Default: <data>/Metadata Automation Batch 1 - script')
     p.add_argument('--suffix1', default='', help="File name suffix in folder 1 (default: none)")
-    p.add_argument('--suffix2', default='_batch1', help="File name suffix in folder 2 (default: _batch1)")
+    p.add_argument('--suffix2', default='', help="File name suffix in folder 2 (default: none)")
     p.add_argument('--label1', default='original', help='Column label for folder 1 (default: original)')
     p.add_argument('--label2', default='batch1', help='Column label for folder 2 (default: batch1)')
     p.add_argument('--index', nargs='+', metavar='NAME', help='Only compare these indices')
     p.add_argument('--out', type=Path, default=DEFAULT_DATA_ROOT / 'Metadata Comparison - script',
                    help='Output folder (default: <data>/Metadata Comparison - script). '
-                        'Each run creates a new <date-time>_<fingerprint> subfolder.')
+                        'File names end with the run date (_2, _3 for more runs that day), so nothing is overwritten.')
+    p.add_argument('--no-date', '--flat', dest='flat', action='store_true',
+                   help='Old file names without the run date; earlier files are overwritten.')
     p.add_argument('--per-index', action='store_true',
                    help='Also write one notebook-style comparison file per index')
     args = p.parse_args(argv)
@@ -346,7 +359,6 @@ def main(argv=None):
     for d in (args.dir1, args.dir2):
         if not d.is_dir():
             sys.exit(f'Folder not found: {d}')
-    args.dir1, args.dir2 = resolve_input_dir(args.dir1), resolve_input_dir(args.dir2)
     pairs, only1, only2 = pair_files(args.dir1, args.dir2, args.suffix1, args.suffix2)
     if args.index:
         missing = [i for i in args.index if i not in pairs]
@@ -359,13 +371,12 @@ def main(argv=None):
     if not pairs:
         sys.exit('Nothing to compare.')
 
-    # --- Snippet 3: fingerprint every pair, then a new run folder ---
-    code = code_version(__file__)
-    run_time = datetime.now(timezone.utc)
-    manifests = {k: pair_manifest(k, f1, f2, n1, n2, code, run_time) for k, (f1, f2) in pairs.items()}
-    batch_fp = batch_fingerprint(manifests.values())
-    run_dir = new_run_folder(args.out, run_folder_name(run_time, batch_fp))
-    print(f"Code version: {code['code_version']}" + chr(10) + f"Run folder:   {run_dir}")
+    # --- Snippet 3: run date in the file names, Run Info sheet in the workbooks ---
+    run_time = datetime.now().astimezone().replace(microsecond=0)
+    manifests = {k: pair_manifest(k, f1, f2, n1, n2, run_time) for k, (f1, f2) in pairs.items()}
+    args.out.mkdir(parents=True, exist_ok=True)
+    print(f"Version:  {VERSION}")
+    print(f"Run time: {run_time.isoformat(sep=' ', timespec='seconds')}" + ('  (--no-date: old file names, overwritten)' if args.flat else ''))
 
     merged = {k: [] for k in ['Overall Summary', 'KPI Comparison', 'Country Comparison', 'Structure Checks']}
     overview, failed = [], []
@@ -384,28 +395,18 @@ def main(argv=None):
         if args.per_index:
             per = {k: v for k, v in res.items() if k != 'Structure Checks'}
             delta, shade = formatting(n1, n2, per)
-            per[RUN_INFO_SHEET] = run_info_df(manifests[index_name])
-            write_dataframes_to_excel_v2(per, output_path=ensure_new(run_dir / f'Metadata_Comparison_{index_name}_{n1}_vs_{n2}.xlsx'),
+            per[RUN_INFO_SHEET] = compare_run_info({index_name: manifests[index_name]}, run_time, args.dir1, args.dir2)
+            per_path = output_path_for(args.out, f'Metadata_Comparison_{index_name}_{n1}_vs_{n2}', run_time, args.flat)
+            write_dataframes_to_excel_v2(per, output_path=ensure_new(per_path, args.flat),
                                          delta_cols=delta, shade_cols=shade)
 
     if overview:
         sheets = {'Index Overview': pd.DataFrame(overview)}
         sheets.update({k: pd.concat(v, ignore_index=True) for k, v in merged.items()})
         delta, shade = formatting(n1, n2, sheets)
-        # One Run Info table for the merged workbook: one row per index and input file
-        sheets[RUN_INFO_SHEET] = pd.DataFrame([
-            {'Index': k, 'run_id': m['run_id'], 'input_fingerprint': m['input_fingerprint'],
-             'role': i['role'], 'file': i['name'], 'sha256': i['sha256'], 'source_run_id': i['source_run_id']}
-            for k, m in manifests.items() for i in m['inputs']])
-        sheets[RUN_INFO_SHEET].insert(0, 'code_version', code['code_version'])
-        out_file = ensure_new(run_dir / f'Metadata_Comparison_{n1}_vs_{n2}.xlsx')
+        sheets[RUN_INFO_SHEET] = compare_run_info(manifests, run_time, args.dir1, args.dir2)
+        out_file = ensure_new(output_path_for(args.out, f'Metadata_Comparison_{n1}_vs_{n2}', run_time, args.flat), args.flat)
         write_dataframes_to_excel_v2(sheets, output_path=out_file, delta_cols=delta, shade_cols=shade)
-
-    write_manifest_json(run_dir, {
-        'run_folder': run_dir.name, 'run_timestamp_utc': run_time.isoformat(timespec='seconds'),
-        'script': Path(__file__).name, **code, 'batch_fingerprint': batch_fp,
-        'dir1': str(args.dir1), 'dir2': str(args.dir2),
-        'indices': [{**m, 'status': 'failed' if k in dict(failed) else 'ok'} for k, m in manifests.items()]})
 
     print('\n' + '=' * 70 + f'\nCOMPARISON SUMMARY: {len(overview)} compared, {len(failed)} failed\n' + '=' * 70)
     if overview:

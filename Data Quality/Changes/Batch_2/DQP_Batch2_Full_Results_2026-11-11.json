@@ -1,0 +1,692 @@
+{
+  "mandatory_count": 29,
+  "mandatory_found": 29,
+  "missing_mandatory": [],
+  "total_vintages_tested": 54,
+  "older_regression_vintages": 25,
+  "failures": [],
+  "rows": [
+    {
+      "vintage": "AIR_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 195,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 195,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "BREADY_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 101,
+      "escwa_available": 5,
+      "escwa_not_covered": 17,
+      "snippet10": "PASS",
+      "synthetic_rows": 101,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "BTI_2026",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 137,
+      "escwa_available": 20,
+      "escwa_not_covered": 2,
+      "snippet10": "PASS",
+      "synthetic_rows": 137,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "EGDI_2024",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 193,
+      "escwa_available": 21,
+      "escwa_not_covered": 1,
+      "snippet10": "PASS",
+      "synthetic_rows": 193,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "EPART_2022",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 193,
+      "escwa_available": 21,
+      "escwa_not_covered": 1,
+      "snippet10": "PASS",
+      "synthetic_rows": 193,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "EPART_2024",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 193,
+      "escwa_available": 21,
+      "escwa_not_covered": 1,
+      "snippet10": "PASS",
+      "synthetic_rows": 193,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "EPI_2024",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 180,
+      "escwa_available": 17,
+      "escwa_not_covered": 5,
+      "snippet10": "PASS",
+      "synthetic_rows": 180,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "EPI_2026",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 177,
+      "escwa_available": 17,
+      "escwa_not_covered": 5,
+      "snippet10": "PASS",
+      "synthetic_rows": 177,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "FII_2023",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 139,
+      "escwa_available": 16,
+      "escwa_not_covered": 6,
+      "snippet10": "PASS",
+      "synthetic_rows": 139,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "FII_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 139,
+      "escwa_available": 16,
+      "escwa_not_covered": 6,
+      "snippet10": "PASS",
+      "synthetic_rows": 139,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GCI_2024",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 194,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 194,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GDI_2022",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 191,
+      "escwa_available": 21,
+      "escwa_not_covered": 1,
+      "snippet10": "PASS",
+      "synthetic_rows": 191,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GDI_2024",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 193,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 193,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GDI_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 184,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 184,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GGI_2023",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 146,
+      "escwa_available": 13,
+      "escwa_not_covered": 9,
+      "snippet10": "PASS",
+      "synthetic_rows": 146,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GGI_2024",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 146,
+      "escwa_available": 14,
+      "escwa_not_covered": 8,
+      "snippet10": "PASS",
+      "synthetic_rows": 146,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GGI_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 148,
+      "escwa_available": 13,
+      "escwa_not_covered": 9,
+      "snippet10": "PASS",
+      "synthetic_rows": 148,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GGI_2026",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 145,
+      "escwa_available": 13,
+      "escwa_not_covered": 9,
+      "snippet10": "PASS",
+      "synthetic_rows": 145,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GHI_2024",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 127,
+      "escwa_available": 19,
+      "escwa_not_covered": 3,
+      "snippet10": "PASS",
+      "synthetic_rows": 127,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GHI_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 123,
+      "escwa_available": 17,
+      "escwa_not_covered": 5,
+      "snippet10": "PASS",
+      "synthetic_rows": 123,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GII_2022",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 132,
+      "escwa_available": 14,
+      "escwa_not_covered": 8,
+      "snippet10": "PASS",
+      "synthetic_rows": 132,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GII_2023",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 132,
+      "escwa_available": 13,
+      "escwa_not_covered": 9,
+      "snippet10": "PASS",
+      "synthetic_rows": 132,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GII_2024",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 133,
+      "escwa_available": 13,
+      "escwa_not_covered": 9,
+      "snippet10": "PASS",
+      "synthetic_rows": 133,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GII_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 139,
+      "escwa_available": 13,
+      "escwa_not_covered": 9,
+      "snippet10": "PASS",
+      "synthetic_rows": 139,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GII_2026",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 139,
+      "escwa_available": 13,
+      "escwa_not_covered": 9,
+      "snippet10": "PASS",
+      "synthetic_rows": 139,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "GKI_2024",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 141,
+      "escwa_available": 11,
+      "escwa_not_covered": 11,
+      "snippet10": "PASS",
+      "synthetic_rows": 141,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "HDI_2022",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 191,
+      "escwa_available": 21,
+      "escwa_not_covered": 1,
+      "snippet10": "PASS",
+      "synthetic_rows": 191,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "HDI_2024",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 193,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 193,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "HDI_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 193,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 193,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "LNOB_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 163,
+      "escwa_available": 20,
+      "escwa_not_covered": 2,
+      "snippet10": "PASS",
+      "synthetic_rows": 163,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "LNOB_2026",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 163,
+      "escwa_available": 20,
+      "escwa_not_covered": 2,
+      "snippet10": "PASS",
+      "synthetic_rows": 163,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "NRI_2023",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 134,
+      "escwa_available": 13,
+      "escwa_not_covered": 9,
+      "snippet10": "PASS",
+      "synthetic_rows": 134,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "NRI_2024",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 133,
+      "escwa_available": 13,
+      "escwa_not_covered": 9,
+      "snippet10": "PASS",
+      "synthetic_rows": 133,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "NRI_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 127,
+      "escwa_available": 12,
+      "escwa_not_covered": 10,
+      "snippet10": "PASS",
+      "synthetic_rows": 127,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "PHDI_2022",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 190,
+      "escwa_available": 21,
+      "escwa_not_covered": 1,
+      "snippet10": "PASS",
+      "synthetic_rows": 190,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "PHDI_2024",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 192,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 192,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "PHDI_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 156,
+      "escwa_available": 21,
+      "escwa_not_covered": 1,
+      "snippet10": "PASS",
+      "synthetic_rows": 156,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "SDI_2023",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 166,
+      "escwa_available": 20,
+      "escwa_not_covered": 2,
+      "snippet10": "PASS",
+      "synthetic_rows": 166,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "SDI_2024",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 167,
+      "escwa_available": 20,
+      "escwa_not_covered": 2,
+      "snippet10": "PASS",
+      "synthetic_rows": 167,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "SDI_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 167,
+      "escwa_available": 20,
+      "escwa_not_covered": 2,
+      "snippet10": "PASS",
+      "synthetic_rows": 167,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "SDI_2026",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 169,
+      "escwa_available": 20,
+      "escwa_not_covered": 2,
+      "snippet10": "PASS",
+      "synthetic_rows": 169,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WBL2_2024",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 190,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 190,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WBL2_2026",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 190,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 190,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WBL_2022",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 190,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 190,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WBL_2023",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 190,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 190,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WBL_2024",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 190,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 190,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WBL_2026",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 190,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 190,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WJP_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 143,
+      "escwa_available": 11,
+      "escwa_not_covered": 11,
+      "snippet10": "PASS",
+      "synthetic_rows": 143,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WPF_2024",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 180,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 180,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WPF_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 177,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 177,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WPF_2026",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 180,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 180,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WPS_2021",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 170,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 170,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WPS_2023",
+      "mandatory": false,
+      "country_domain": "PASS",
+      "raw_countries": 177,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 177,
+      "snippet11_coverage": "PASS"
+    },
+    {
+      "vintage": "WPS_2025",
+      "mandatory": true,
+      "country_domain": "PASS",
+      "raw_countries": 181,
+      "escwa_available": 22,
+      "escwa_not_covered": 0,
+      "snippet10": "PASS",
+      "synthetic_rows": 181,
+      "snippet11_coverage": "PASS"
+    }
+  ],
+  "real_dqp_country_cases": [
+    {
+      "vintage": "WPS_2025",
+      "both": 175,
+      "simulator_only": 6,
+      "historical_only": 1,
+      "unknown_canonical": 0,
+      "sim_only_codes": "FSM;GRD;KIR;MHL;PLW;XKX",
+      "hist_only_codes": "GNQ"
+    },
+    {
+      "vintage": "FII_2025",
+      "both": 138,
+      "simulator_only": 1,
+      "historical_only": 47,
+      "unknown_canonical": 0,
+      "sim_only_codes": "XKX",
+      "hist_only_codes": "ABW;AGO;ATG;BDI;BHS;BLZ;BRB;BRN;BTN;COM;CPV;DJI;DMA;FJI;FSM;GMB;GNB;GNQ;GRD;GUY;HTI;ISL;JAM;KIR;KNA;LCA;LSO;MDV;MSR;PLW;PNG;SDN;SLB;SMR;SSD;STP;SUR;SWZ;SYC;SYR;TLS;TON;TTO;VCT;VUT;WSM;YEM"
+    },
+    {
+      "vintage": "EGDI_2024",
+      "both": 192,
+      "simulator_only": 1,
+      "historical_only": 0,
+      "unknown_canonical": 0,
+      "sim_only_codes": "SWZ",
+      "hist_only_codes": ""
+    },
+    {
+      "vintage": "GII_2026",
+      "both": 139,
+      "simulator_only": 0,
+      "historical_only": 0,
+      "unknown_canonical": 0,
+      "sim_only_codes": "",
+      "hist_only_codes": ""
+    }
+  ],
+  "percentage_real_output_examples": [
+    {
+      "vintage": "WPS_2025",
+      "old_max_labeled_percent": 0.96,
+      "new_max_percent": 96.13,
+      "old_first_row_sum": 1.0,
+      "new_first_row_sum": 99.99000000000001
+    },
+    {
+      "vintage": "FII_2025",
+      "old_max_labeled_percent": 0.99,
+      "new_max_percent": 99.28,
+      "old_first_row_sum": 1.01,
+      "new_first_row_sum": 100.0
+    },
+    {
+      "vintage": "EGDI_2024",
+      "old_max_labeled_percent": 0.99,
+      "new_max_percent": 99.48,
+      "old_first_row_sum": 1.0,
+      "new_first_row_sum": 100.01
+    },
+    {
+      "vintage": "GII_2026",
+      "old_max_labeled_percent": 1.0,
+      "new_max_percent": 100.0,
+      "old_first_row_sum": 1.0,
+      "new_first_row_sum": 100.0
+    }
+  ],
+  "coverage_scan_current_alfonso": {
+    "latent_skip_message_bug_present": true
+  },
+  "recheck_2026_11_11": {
+    "note": "Real country cases rerun on corrected historical files",
+    "GII_2026": {
+      "both": 139,
+      "simulator_only": [],
+      "historical_only": [],
+      "historical_file": "20261019_historical_data_index_7_GII_2026.xlsx (corrected 9 Nov 2026)"
+    },
+    "EGDI_2024": {
+      "both": 192,
+      "simulator_only": [
+        "SWZ"
+      ],
+      "historical_only": [],
+      "historical_file": "historical_data_index_9 EGDI_2024_corrected_20261111.xlsx"
+    }
+  }
+}
