@@ -1,5 +1,5 @@
 """
-Metadata Automation - script version of 'Metadata Automation.ipynb'.
+Metadata Automation - script version of 'Archive/Metadata Automation v1.0.ipynb'.
 
 Runs every index in utils/index_files.py whose historical + simulator files are
 found in the given folders. By default only the metadata workbook is written.
@@ -7,14 +7,14 @@ found in the given folders. By default only the metadata workbook is written.
 Examples
 --------
   # all indices found in the default folders (C:/Users/alfon/Desktop/UN/Data/...)
-  python metadata_automation.py
+  python Archive/metadata_v1.0.py
 
   # your own folders, two indices, all three outputs into one folder
-  python metadata_automation.py --hist "D:/data/Historical" --sim "D:/data/Simulator Data" \\
+  python Archive/metadata_v1.0.py --hist "D:/data/Historical" --sim "D:/data/Simulator Data" \\
       --index index_9 index_1032 --all-outputs --out "D:/data/out"
 
   # see which indices would run
-  python metadata_automation.py --hist ... --sim ... --list
+  python Archive/metadata_v1.0.py --hist ... --sim ... --list
 
 Outputs (per index; <date> = run date, e.g. 20261115; _2, _3 ... for more runs that day)
   Metadata_Automation_<index>_<date>.xlsx    default on   (--no-metadata to turn off)
@@ -31,6 +31,9 @@ import time
 
 import numpy as np
 import pandas as pd
+
+# Archived in Data Quality/Archive: utils is one folder up
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils.batch import build_parser, resolve, run_batch, utf8_console
 from utils.index_files import ESCWA_MEMBERS

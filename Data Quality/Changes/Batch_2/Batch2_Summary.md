@@ -22,7 +22,7 @@ Batch 2 is built on top of Batch 1: all Batch 1 changes are kept. Matching rules
 | `utils/batch2.py` | Batch 2 functions, based on `DQP_Batch2_Reference_Snippets_2026-11-11.py`. Kept separate so v1.0 and v1.1 outputs do not change. |
 | `utils/excel_functions.py` | Skip-message fix in the country-sheet writer (shared; affects only the error path). |
 | `metadata_compare.py` | Reads each workbook's version from `Run Info` so v1.1 (fractions) and v1.2 (0–100) country percentages are compared on the same scale. |
-| `Metadata Automation.ipynb` / `metadata_automation.py` (v1.0), `Metadata Automation - Batch 1.ipynb` / `metadata_batch1.py` (v1.1) | Unchanged. |
+| `Archive/Metadata Automation v1.0.ipynb` / `Archive/metadata_v1.0.py` (v1.0), `Archive/Metadata Automation v1.1.ipynb` / `Archive/metadata_v1.1.py` (v1.1) | Unchanged (archived 16 November). |
 
 ### How to run
 ```

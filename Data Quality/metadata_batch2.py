@@ -1,7 +1,7 @@
 """
 Metadata Automation - Batch 2 - script version of 'Metadata Automation - Batch 2.ipynb' (version 1.2).
 
-Batch 1 (as in metadata_batch1.py) plus the DQP Batch 2 changes (utils/batch2.py):
+Batch 1 (as in Archive/metadata_v1.1.py) plus the DQP Batch 2 changes (utils/batch2.py):
 - Snippet 2 (percentages): every user-facing % / _pct column is on a 0-100 scale; the exported matching
   ratio is value_difference_ratio_inferred, with value_difference_pct_inferred (x100) next to it.
 - Snippet 1 (country-code audit): 'Country code audit' sheet in the metadata workbook - every ISO in the

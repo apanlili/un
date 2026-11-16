@@ -13,8 +13,8 @@ Three changes to the Metadata Automation (DQP) pipeline, from `DQP_Batch1_Instru
 ## What is in the repo (`Data Quality/`)
 | File | Purpose |
 |---|---|
-| `Metadata Automation.ipynb`, `metadata_automation.py` | Original pipeline, **version 1.0** (Snippets 1 and 3) |
-| `Metadata Automation - Batch 1.ipynb`, `metadata_batch1.py` | Batch 1 pipeline, **version 1.1** (Snippets 1, 2 and 3) |
+| `Archive/Metadata Automation v1.0.ipynb` (was `Metadata Automation.ipynb`), `Archive/metadata_v1.0.py` (was `metadata_automation.py`) | Original pipeline, **version 1.0** (Snippets 1 and 3) |
+| `Archive/Metadata Automation v1.1.ipynb` (was `Metadata Automation - Batch 1.ipynb`), `Archive/metadata_v1.1.py` (was `metadata_batch1.py`) | Batch 1 pipeline, **version 1.1** (Snippets 1, 2 and 3) |
 | `metadata_compare.py` | Compares v1.0 and v1.1 outputs for every index in one workbook |
 | `utils/bound_rules.py` | UCE bounds, reviewed A1 list, A1 test |
 | `utils/run_stamp.py` | Version, dated file names, `Run Info` sheet |
@@ -25,10 +25,10 @@ Notebook and script give identical outputs (checked on EGDI 2024).
 
 ## How to run
 ```
-python metadata_batch1.py                      # all indices, metadata file only
-python metadata_batch1.py --index index_9 --all-outputs
-python metadata_batch1.py --no-date            # old file names, overwrite
-python metadata_batch1.py --gdrive             # read from / write to the shared Drive
+python Archive/metadata_v1.1.py                      # all indices, metadata file only
+python Archive/metadata_v1.1.py --index index_9 --all-outputs
+python Archive/metadata_v1.1.py --no-date            # old file names, overwrite
+python Archive/metadata_v1.1.py --gdrive             # read from / write to the shared Drive
 python metadata_compare.py                     # v1.0 vs v1.1
 ```
 Notebooks: set `index_name`, `use_gdrive` and `use_date_in_filename` in the Setup cell.

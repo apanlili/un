@@ -1,7 +1,7 @@
 """
-Metadata Automation - Batch 1 - script version of 'Metadata Automation - Batch 1.ipynb'.
+Metadata Automation - Batch 1 - script version of 'Archive/Metadata Automation v1.1.ipynb'.
 
-Same as metadata_automation.py, plus the DQP Batch 1 changes
+Same as Archive/metadata_v1.0.py, plus the DQP Batch 1 changes
 (Snippet 1, negative/zero matching, is in the shared utils and applies to both).
 Snippet 2 (UCE cap/floor bounds):
 - Caps/floors come from the UCE bounds extract (<data-root>/Reference Data/DQP_UCE_Bounds_Extract_v41_2026-11-01.csv)
@@ -15,8 +15,8 @@ Snippet 3 (run stamp, non-overwriting outputs): see utils/run_stamp.py.
 
 Examples
 --------
-  python metadata_batch1.py
-  python metadata_batch1.py --hist "D:/data/Historical" --sim "D:/data/Simulator Data" --index index_9 --ispar
+  python Archive/metadata_v1.1.py
+  python Archive/metadata_v1.1.py --hist "D:/data/Historical" --sim "D:/data/Simulator Data" --index index_9 --ispar
 
 Outputs (per index; <date> = run date, e.g. 20261115; _2, _3 ... for more runs that day)
   Metadata_Automation_<index>_<date>.xlsx    default on   (--no-metadata to turn off)
@@ -34,6 +34,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+# Archived in Data Quality/Archive: utils is one folder up
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils.batch import build_parser, resolve, run_batch, utf8_console
 from utils.index_files import ESCWA_MEMBERS, UCE_VINTAGES

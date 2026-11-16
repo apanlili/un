@@ -18,8 +18,8 @@ This document replaces the separate `Snippet1_Summary.md`, `Snippet2_Summary.md`
 ### Files
 | File | Contents |
 |---|---|
-| `Metadata Automation.ipynb`, `metadata_automation.py` | Original pipeline, version 1.0. Snippets 1 (shared utils) and 3. |
-| `Metadata Automation - Batch 1.ipynb`, `metadata_batch1.py` | Batch 1 pipeline, version 1.1 (renamed from `... - Snippet 2` / `metadata_snippet2.py`). Snippets 1, 2 and 3. Outputs are named like the original's and kept apart by output folder and version. |
+| `Archive/Metadata Automation v1.0.ipynb` (was `Metadata Automation.ipynb`), `Archive/metadata_v1.0.py` (was `metadata_automation.py`) | Original pipeline, version 1.0. Snippets 1 (shared utils) and 3. |
+| `Archive/Metadata Automation v1.1.ipynb` (was `Metadata Automation - Batch 1.ipynb`), `Archive/metadata_v1.1.py` (was `metadata_batch1.py`) | Batch 1 pipeline, version 1.1 (renamed from `... - Snippet 2` / `metadata_snippet2.py`). Snippets 1, 2 and 3. Outputs are named like the original's and kept apart by output folder and version. |
 | `metadata_compare.py` | Compares original vs Batch 1 outputs for every index, merged into one workbook. Has Snippet 3. |
 | `utils/bound_rules.py` | Snippet 2: UCE bounds, reviewed A1 list, A1 test, beyond-bound flag. |
 | `utils/run_stamp.py` | Snippet 3: run record, fingerprint, `Run Info` sheet, overwrite guard. |
