@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import re
+from pathlib import Path          # Batch 2
+from typing import Iterable       # Batch 2
 
 def format_simulator_data(simulator_data_raw, kpi_key,
                           pivot_names=('Country', 'ISO', 'Region', 'Sub-region', 'Income Type')):
@@ -930,3 +932,276 @@ def run_exact_match_checks(summary_stats, summary_stats_kpi, summary_country_esc
         summary_country_escwa, label='ESCWA countries', threshold=threshold)
 
     return overall_rate, per_kpi, per_country
+
+
+####################################################################################
+######### Batch 2 (pipeline version 1.2) - moved here from 'batch2' (utils/batch2.py)
+####################################################################################
+# Reference behaviour: Changes/Batch_2/DQP_Batch2_Reference_Snippets_2026-11-11.py
+# These are new functions; the functions above are unchanged, so the archived v1.0 and v1.1
+# pipelines (Archive/) produce the same outputs as before. Used by metadata_batch2.py and
+# 'Metadata Automation v1.2.ipynb'.
+
+AUDIT_SHEET = 'Country code audit'
+COVERAGE_SHEET = 'Country Profile Coverage'
+AVAILABLE = 'AVAILABLE'
+NOT_COVERED = 'NOT_COVERED_BY_INDEX_EDITION'
+
+
+# --- Batch 2 Snippet 1 (from 'batch2'): country-code audit in both directions ---
+# One row per ISO in the simulator and/or historical file (BOTH / SIMULATOR_ONLY / HISTORICAL_ONLY),
+# saved as 'Country code audit'. canonical_iso_status is VALID / UNKNOWN against a canonical country
+# list when one is supplied, otherwise NOT_CHECKED.
+# With the country reference (<data-root>/Reference Data/Country_Reference.xlsx: canonical codes, publisher
+# aliases, code history and country names), each code also gets its canonical code (KSV -> XKX, PES -> PSE,
+# LIECHTENSTEIN -> LIE ...), the status ALIAS, and its presence after mapping; ALIAS codes are then corrected
+# in the data (apply_iso_corrections). The alias rules are read from the reference, not copied here; the
+# reading code is utils/country_codes.py (stripped from dqp_precheck v0.3).
+from utils.country_codes import CountryCodes, COUNTRY_REFERENCE_NAME      # Batch 2
+
+
+def _codes(df: pd.DataFrame, iso_col: str = 'ISO') -> set[str]:
+    return set(df[iso_col].dropna().astype(str).str.strip().str.upper()) - {''}
+
+
+def load_canonical_codes(path: str | Path | None, iso_col: str | None = None, sheet_name=0) -> set[str] | None:
+    """Canonical ISO list from a file (csv/xlsx), or None when no file is given.
+
+    The code column is `iso_col` when given, otherwise 'canonical_code' (the dqp_precheck
+    CANONICAL_ENTITIES_codes_snapshot_*.csv) or 'ISO', whichever the file has."""
+    if path is None:
+        return None
+    path = Path(path)
+    df = pd.read_csv(path) if path.suffix.lower() == '.csv' else pd.read_excel(path, sheet_name=sheet_name)
+    if iso_col is None:
+        iso_col = next((c for c in ('canonical_code', 'ISO') if c in df.columns), None)
+        if iso_col is None:
+            raise ValueError(f"{path.name}: no 'canonical_code' or 'ISO' column (columns: {list(df.columns)})")
+    return _codes(df, iso_col)
+
+
+def load_country_reference(path: str | Path) -> CountryCodes:
+    """Country reference workbook (Country_Reference.xlsx), see utils/country_codes.py."""
+    return CountryCodes.from_workbook(path)
+
+
+def _presence(in_sim: bool, in_hist: bool) -> str:
+    return 'BOTH' if in_sim and in_hist else ('SIMULATOR_ONLY' if in_sim else 'HISTORICAL_ONLY')
+
+
+def country_presence_audit(simulator: pd.DataFrame, historical: pd.DataFrame,
+                           canonical_codes: Iterable[str] | None = None,
+                           names: dict[str, str] | None = None, iso_col: str = 'ISO',
+                           country_reference=None, index_id: str | None = None) -> pd.DataFrame:
+    """Country codes in the simulator and/or historical file (reference: country_presence_audit), plus the country name.
+
+    country_reference (load_country_reference()) adds canonical_code, the status ALIAS (a publisher alias or
+    old code of a canonical code) and presence_after_mapping (presence of the canonical code in each file).
+    index_id ('1036') applies the aliases scoped to that publisher's files."""
+    sim_codes, hist_codes = _codes(simulator, iso_col), _codes(historical, iso_col)
+    names = names or {}
+    ref = country_reference
+    if ref is not None:
+        canonical = set(ref.canonical_codes)
+        to_canon = {}
+        for iso in sim_codes | hist_codes:
+            can = ref.canonical(iso, index_id=index_id)
+            if can not in canonical:         # a country name in the code column (LIECHTENSTEIN, LAO PDR)
+                can = ref.by_name(iso, index_id) or can
+            to_canon[iso] = can
+        sim_canon = {to_canon[i] for i in sim_codes}
+        hist_canon = {to_canon[i] for i in hist_codes}
+    else:
+        canonical = None if canonical_codes is None else {str(x).strip().upper() for x in canonical_codes}
+    rows = []
+    for iso in sorted(sim_codes | hist_codes):
+        in_sim, in_hist = iso in sim_codes, iso in hist_codes
+        row = {'ISO': iso, 'Country': names.get(iso), 'in_simulator': in_sim, 'in_historical': in_hist,
+               'presence_status': _presence(in_sim, in_hist)}
+        if canonical is None:
+            row['canonical_iso_status'] = 'NOT_CHECKED'
+        elif ref is None:
+            row['canonical_iso_status'] = 'VALID' if iso in canonical else 'UNKNOWN'
+        else:
+            can = to_canon[iso]
+            row['canonical_iso_status'] = ('VALID' if iso in canonical else
+                                           'ALIAS' if can != iso and can in canonical else 'UNKNOWN')
+            row['canonical_code'] = can if can in canonical else None
+            if row['Country'] is None or pd.isna(row['Country']):
+                row['Country'] = names.get(can)
+            row['presence_after_mapping'] = (_presence(can in sim_canon, can in hist_canon)
+                                             if row['canonical_code'] else row['presence_status'])
+        rows.append(row)
+    cols = ['ISO', 'Country', 'in_simulator', 'in_historical', 'presence_status', 'canonical_iso_status']
+    if ref is not None:
+        cols += ['canonical_code', 'presence_after_mapping']
+    return pd.DataFrame(rows, columns=cols)
+
+
+def country_audit_summary(audit: pd.DataFrame) -> dict[str, int]:
+    counts = audit['presence_status'].value_counts().to_dict() if len(audit) else {}
+    status = audit['canonical_iso_status'] if len(audit) else pd.Series(dtype=str)
+    return {'both': int(counts.get('BOTH', 0)),
+            'simulator_only': int(counts.get('SIMULATOR_ONLY', 0)),
+            'historical_only': int(counts.get('HISTORICAL_ONLY', 0)),
+            'alias': int((status == 'ALIAS').sum()),
+            'unknown_canonical': int((status == 'UNKNOWN').sum())}
+
+
+def print_country_audit(audit: pd.DataFrame) -> None:
+    s = country_audit_summary(audit)
+    sim_only = audit.loc[audit['presence_status'] == 'SIMULATOR_ONLY', 'ISO'].tolist()
+    hist_only = audit.loc[audit['presence_status'] == 'HISTORICAL_ONLY', 'ISO'].tolist()
+    print('=' * 60 + '\nCOUNTRY CODE AUDIT: simulator vs historical\n' + '=' * 60)
+    print(f"Both: {s['both']}   Simulator only: {s['simulator_only']}   Historical only: {s['historical_only']}")
+    if sim_only:
+        print(f"   Simulator only:  {';'.join(sim_only)}")
+    if hist_only:
+        print(f"   Historical only: {';'.join(hist_only)}")
+    if (audit['canonical_iso_status'] == 'NOT_CHECKED').all():
+        print('   Canonical check: NOT_CHECKED (no canonical country list supplied)')
+        return
+    if 'canonical_code' in audit.columns:
+        aliases = audit[audit['canonical_iso_status'] == 'ALIAS']
+        if len(aliases):
+            print('   Aliases (code -> canonical): ' + ', '.join(f'{a}->{c}' for a, c in zip(aliases['ISO'], aliases['canonical_code'])))
+        after = (audit.assign(_key=audit['canonical_code'].fillna(audit['ISO']))
+                 .drop_duplicates('_key')['presence_after_mapping'].value_counts())
+        print(f"   After mapping: Both: {after.get('BOTH', 0)}   Simulator only: {after.get('SIMULATOR_ONLY', 0)}"
+              f"   Historical only: {after.get('HISTORICAL_ONLY', 0)}")
+    unknown = audit.loc[audit['canonical_iso_status'] == 'UNKNOWN', 'ISO'].tolist()
+    if unknown:
+        print(f"   ⚠️ Codes outside the canonical list, kept as in the file: {len(unknown)} ({';'.join(unknown)})")
+    else:
+        print('   Codes outside the canonical list: 0')
+    if 'iso_corrected' in audit.columns:
+        print(f"   ISO corrections applied to the data: {int(audit['iso_corrected'].sum())}")
+
+
+class IsoCorrectionConflict(ValueError):
+    """Correcting the country codes would give one country two rows for the same KPI (and year)."""
+
+
+def iso_corrections(audit: pd.DataFrame) -> dict[str, str]:
+    """{code in the file: canonical code} for every ALIAS row of the country-code audit."""
+    if 'canonical_code' not in audit.columns:
+        return {}
+    a = audit[audit['canonical_iso_status'] == 'ALIAS']
+    return dict(zip(a['ISO'], a['canonical_code']))
+
+
+def apply_iso_corrections(df: pd.DataFrame, corrections: dict[str, str], key_cols: list[str],
+                          which: str, iso_col: str = 'ISO') -> pd.DataFrame:
+    """Replace alias codes with their canonical code (KSV -> XKX, PES -> PSE, LIECHTENSTEIN -> LIE).
+
+    Codes not in `corrections` (VALID, UNKNOWN) are left as they are. Hard flag: raises IsoCorrectionConflict
+    when a corrected code collides with a row already in the file (same `key_cols`, e.g. PES and PSE both
+    holding KPI 117 for 2023), instead of choosing one of the two."""
+    if not corrections:
+        return df
+    out = df.copy()
+    codes = out[iso_col].astype(str).str.strip().str.upper()
+    changed = codes.isin(corrections.keys())
+    out[iso_col] = codes.map(corrections).where(changed, out[iso_col])
+    dup = out.duplicated(key_cols, keep=False)
+    conflict_keys = out.loc[dup & changed, key_cols].drop_duplicates()
+    if len(conflict_keys):
+        detail = (out[dup].assign(code_in_file=df[iso_col])
+                  .merge(conflict_keys, on=key_cols)[key_cols + ['code_in_file']])
+        raise IsoCorrectionConflict(
+            f'{which} file: correcting country codes would create {len(conflict_keys)} duplicate '
+            f"{'/'.join(key_cols)} rows (the alias and the canonical code both hold data). Correct the file, "
+            f'or run with the ISO correction switched off. First conflicts:\n'
+            + detail.head(10).to_string(index=False))
+    return out
+
+
+# --- Batch 2 Snippet 2 (from 'batch2'): percentages on a 0-100 scale ---
+# Every user-facing % / _pct column is 0-100. The exported matching ratio is value_difference_ratio_inferred,
+# with value_difference_pct_inferred (ratio x 100) next to it; the matching calculation is unchanged.
+RATIO_COL = 'value_difference_percentage_inferred'          # internal name (unchanged, used by matching)
+RATIO_EXPORT_COL = 'value_difference_ratio_inferred'
+PCT_EXPORT_COL = 'value_difference_pct_inferred'
+
+
+def pct100_columns(df: pd.DataFrame, quality_cols: list[str], suffix: str = '_pct') -> pd.DataFrame:
+    """Recompute '<col><suffix>' as count / Total x 100 (0-100, 2 decimals).
+
+    Used on the 'Summary Stats by KPI' / 'Summary Stats by Country' tables from get_summary_stats,
+    which store fractions (0.96) in their _pct columns. Counts and Total are unchanged.
+    """
+    out = df.copy()
+    denom = out['Total'].replace(0, np.nan)
+    for col in quality_cols:
+        out[col + suffix] = (out[col] / denom * 100).fillna(0).round(2)
+    return out
+
+
+def profile_quality_summary_table_pct100(metadata: pd.DataFrame, quality_cols: list[str],
+                                         groupby: str | list[str], pct_only: bool = False) -> pd.DataFrame:
+    """Grouped bucket summary with ' (%)' columns on a 0-100 scale.
+
+    Corrected equivalent of formatting_functions.profile_quality_summary_table(groupby=...),
+    which labels its columns '(%)' but stores fractions. Same as the Batch 2 reference function.
+    """
+    groupby_cols = [groupby] if isinstance(groupby, str) else list(groupby)
+    out = metadata.groupby(groupby_cols, dropna=False)[quality_cols].sum().reset_index()
+    out['Total'] = out[quality_cols].sum(axis=1)
+    denom = out['Total'].replace(0, np.nan)
+    for col in quality_cols:
+        out[col + ' (%)'] = (out[col] / denom * 100).fillna(0).round(2)
+    if pct_only:
+        return out[groupby_cols + [col + ' (%)' for col in quality_cols]]
+    return out
+
+
+def prepare_metadata_export_percentages(metadata: pd.DataFrame) -> pd.DataFrame:
+    """Exported metadata sheet: the matching ratio is labelled as a ratio, with a 0-100 percentage next to it.
+
+    value_difference_percentage_inferred (a ratio, e.g. 0.0061)
+      -> value_difference_ratio_inferred (0.0061) + value_difference_pct_inferred (0.61)
+    The matching calculation itself is unchanged.
+    """
+    if RATIO_COL not in metadata.columns:
+        return metadata.copy()
+    out = metadata.rename(columns={RATIO_COL: RATIO_EXPORT_COL})
+    pct = (pd.to_numeric(out[RATIO_EXPORT_COL], errors='coerce') * 100).round(2)
+    out.insert(out.columns.get_loc(RATIO_EXPORT_COL) + 1, PCT_EXPORT_COL, pct)
+    return out
+
+
+def check_pct100(df: pd.DataFrame, pct_cols: list[str], name: str, tolerance: float = 0.15) -> None:
+    """Print whether every % value is within 0-100 and each row of bucket %s sums to ~100."""
+    vals = df[pct_cols].apply(pd.to_numeric, errors='coerce')
+    in_range = bool(((vals >= -0.02) & (vals <= 100.02) | vals.isna()).all().all())
+    sums = vals.sum(axis=1)
+    active = vals.notna().any(axis=1) & (sums > 0)
+    sums_ok = bool(np.allclose(sums[active], 100.0, atol=tolerance)) if active.any() else True
+    mark = '✅' if in_range and sums_ok else '⚠️'
+    print(f"{mark} {name}: % columns within 0-100: {in_range}; rows sum to ~100: {sums_ok}")
+
+
+# --- Batch 2 Snippet 3 (from 'batch2'): explicit country profile coverage ---
+# One status per requested country (AVAILABLE / NOT_COVERED_BY_INDEX_EDITION), saved as
+# 'Country Profile Coverage'; country profile sheets are generated only for AVAILABLE countries.
+def build_profile_coverage_table(metadata: pd.DataFrame, requested_isos: Iterable[str],
+                                 names: dict[str, str] | None = None, iso_col: str = 'ISO') -> pd.DataFrame:
+    """One status per requested country: AVAILABLE if the index edition has rows for it, else NOT_COVERED."""
+    available = _codes(metadata, iso_col)
+    rows = []
+    for iso in requested_isos:
+        code = str(iso).strip().upper()
+        rows.append({'ISO': code, 'Country': (names or {}).get(code),
+                     'profile_status': AVAILABLE if code in available else NOT_COVERED})
+    return pd.DataFrame(rows, columns=['ISO', 'Country', 'profile_status'])
+
+
+def profile_isos_to_generate(coverage: pd.DataFrame) -> list[str]:
+    """Country sheets are generated only for AVAILABLE countries."""
+    return coverage.loc[coverage['profile_status'].eq(AVAILABLE), 'ISO'].tolist()
+
+
+def print_coverage(coverage: pd.DataFrame) -> None:
+    not_cov = coverage.loc[coverage['profile_status'] == NOT_COVERED, 'ISO'].tolist()
+    print(f"Country Profile Coverage: {len(coverage) - len(not_cov)} of {len(coverage)} requested countries AVAILABLE"
+          + (f"; {NOT_COVERED}: {', '.join(not_cov)}" if not_cov else ''))

@@ -1,0 +1,203 @@
+ISO,Country,Region,Income Type,Arab region,source
+FIN,Finland,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+SWE,Sweden,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+DNK,Denmark,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+NOR,Norway,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+DEU,Germany,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+AUT,Austria,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+FRA,France,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+GBR,United Kingdom,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+ISL,Iceland,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+CZE,Czechia,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+POL,Poland,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+EST,Estonia,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+HRV,Croatia,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+LVA,Latvia,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+SVN,Slovenia,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+ESP,Spain,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+PRT,Portugal,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+BEL,Belgium,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+NLD,Netherlands,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+JPN,Japan,East Asia & Pacific,High income,False,raw_SDG_2026.xlsx
+SVK,Slovak Republic,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+CHE,Switzerland,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+LTU,Lithuania,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+HUN,Hungary,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+IRL,Ireland,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+ITA,Italy,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+NZL,New Zealand,East Asia & Pacific,High income,False,raw_SDG_2026.xlsx
+CAN,Canada,North America,High income,False,raw_SDG_2026.xlsx
+AUS,Australia,East Asia & Pacific,High income,False,raw_SDG_2026.xlsx
+MLT,Malta,Middle East & North Africa,High income,False,raw_SDG_2026.xlsx
+MDA,Moldova,Europe & Central Asia,Lower middle income,False,raw_SDG_2026.xlsx
+GRC,Greece,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+CHL,Chile,Latin America & Caribbean,High income,False,raw_SDG_2026.xlsx
+KOR,"Korea, Rep.",East Asia & Pacific,High income,False,raw_SDG_2026.xlsx
+BLR,Belarus,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+SRB,Serbia,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+ROU,Romania,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+URY,Uruguay,Latin America & Caribbean,High income,False,raw_SDG_2026.xlsx
+LUX,Luxembourg,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+CUB,Cuba,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+BGR,Bulgaria,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+UKR,Ukraine,Europe & Central Asia,Lower middle income,False,raw_SDG_2026.xlsx
+THA,Thailand,East Asia & Pacific,Upper middle income,False,raw_SDG_2026.xlsx
+ALB,Albania,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+USA,United States,North America,High income,False,raw_SDG_2026.xlsx
+CYP,Cyprus,Europe & Central Asia,High income,False,raw_SDG_2026.xlsx
+ARM,Armenia,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+MNE,Montenegro,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+CHN,China,East Asia & Pacific,Upper middle income,False,raw_SDG_2026.xlsx
+KGZ,Kyrgyz Republic,Europe & Central Asia,Lower middle income,False,raw_SDG_2026.xlsx
+RUS,Russian Federation,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+AZE,Azerbaijan,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+BRA,Brazil,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+BIH,Bosnia and Herzegovina,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+ISR,Israel,Middle East & North Africa,High income,False,raw_SDG_2026.xlsx
+MKD,North Macedonia,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+ARG,Argentina,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+VNM,Vietnam,East Asia & Pacific,Lower middle income,False,raw_SDG_2026.xlsx
+SGP,Singapore,East Asia & Pacific,High income,False,raw_SDG_2026.xlsx
+CRI,Costa Rica,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+GEO,Georgia,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+FJI,Fiji,East Asia & Pacific,Upper middle income,False,raw_SDG_2026.xlsx
+MDV,Maldives,South Asia,Upper middle income,False,raw_SDG_2026.xlsx
+DOM,Dominican Republic,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+UZB,Uzbekistan,Europe & Central Asia,Lower middle income,False,raw_SDG_2026.xlsx
+PER,Peru,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+KAZ,Kazakhstan,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+MAR,Morocco,Middle East & North Africa,Lower middle income,True,raw_SDG_2026.xlsx
+COL,Colombia,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+DZA,Algeria,Middle East & North Africa,Upper middle income,True,raw_SDG_2026.xlsx
+ARE,United Arab Emirates,Middle East & North Africa,High income,True,raw_SDG_2026.xlsx
+TUN,Tunisia,Middle East & North Africa,Lower middle income,True,raw_SDG_2026.xlsx
+BTN,Bhutan,South Asia,Lower middle income,False,raw_SDG_2026.xlsx
+IDN,Indonesia,East Asia & Pacific,Lower middle income,False,raw_SDG_2026.xlsx
+MEX,Mexico,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+MYS,Malaysia,East Asia & Pacific,Upper middle income,False,raw_SDG_2026.xlsx
+TUR,Türkiye,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+SUR,Suriname,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+ECU,Ecuador,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+PHL,Philippines,East Asia & Pacific,Lower middle income,False,raw_SDG_2026.xlsx
+OMN,Oman,Middle East & North Africa,High income,True,raw_SDG_2026.xlsx
+JOR,Jordan,Middle East & North Africa,Upper middle income,True,raw_SDG_2026.xlsx
+BLZ,Belize,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+JAM,Jamaica,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+BRB,Barbados,Latin America & Caribbean,High income,False,raw_SDG_2026.xlsx
+EGY,"Egypt, Arab Rep.",Middle East & North Africa,Lower middle income,True,raw_SDG_2026.xlsx
+BRN,Brunei Darussalam,East Asia & Pacific,High income,False,raw_SDG_2026.xlsx
+PAN,Panama,Latin America & Caribbean,High income,False,raw_SDG_2026.xlsx
+IRN,"Iran, Islamic Rep.",Middle East & North Africa,Upper middle income,False,raw_SDG_2026.xlsx
+NPL,Nepal,South Asia,Low income,False,raw_SDG_2026.xlsx
+MNG,Mongolia,East Asia & Pacific,Lower middle income,False,raw_SDG_2026.xlsx
+LKA,Sri Lanka,South Asia,Upper middle income,False,raw_SDG_2026.xlsx
+PRY,Paraguay,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+IND,India,South Asia,Lower middle income,False,raw_SDG_2026.xlsx
+CPV,Cabo Verde,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+SLV,El Salvador,Latin America & Caribbean,Lower middle income,False,raw_SDG_2026.xlsx
+MUS,Mauritius,Sub-Saharan Africa,Upper middle income,False,raw_SDG_2026.xlsx
+TJK,Tajikistan,Europe & Central Asia,Low income,False,raw_SDG_2026.xlsx
+BOL,Bolivia,Latin America & Caribbean,Lower middle income,False,raw_SDG_2026.xlsx
+NAM,Namibia,Sub-Saharan Africa,Upper middle income,False,raw_SDG_2026.xlsx
+QAT,Qatar,Middle East & North Africa,High income,True,raw_SDG_2026.xlsx
+TLS,Timor-Leste,East Asia & Pacific,Lower middle income,False,raw_SDG_2026.xlsx
+BHS,"Bahamas, The",Latin America & Caribbean,High income,False,raw_SDG_2026.xlsx
+SAU,Saudi Arabia,Middle East & North Africa,High income,True,raw_SDG_2026.xlsx
+BHR,Bahrain,Middle East & North Africa,High income,True,raw_SDG_2026.xlsx
+KEN,Kenya,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+VEN,"Venezuela, RB",Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+KHM,Cambodia,East Asia & Pacific,Lower middle income,False,raw_SDG_2026.xlsx
+ZAF,South Africa,Sub-Saharan Africa,Upper middle income,False,raw_SDG_2026.xlsx
+BGD,Bangladesh,South Asia,Lower middle income,False,raw_SDG_2026.xlsx
+STP,Sao Tome and Principe,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+BWA,Botswana,Sub-Saharan Africa,Upper middle income,False,raw_SDG_2026.xlsx
+NIC,Nicaragua,Latin America & Caribbean,Lower middle income,False,raw_SDG_2026.xlsx
+RWA,Rwanda,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+GUY,Guyana,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+GAB,Gabon,Sub-Saharan Africa,Upper middle income,False,raw_SDG_2026.xlsx
+GHA,Ghana,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+SEN,Senegal,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+CIV,Cote d'Ivoire,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+KWT,Kuwait,Middle East & North Africa,High income,True,raw_SDG_2026.xlsx
+LBN,Lebanon,Middle East & North Africa,Upper middle income,True,raw_SDG_2026.xlsx
+LAO,Lao PDR,East Asia & Pacific,Lower middle income,False,raw_SDG_2026.xlsx
+MMR,Myanmar,East Asia & Pacific,Lower middle income,False,raw_SDG_2026.xlsx
+IRQ,Iraq,Middle East & North Africa,Upper middle income,True,raw_SDG_2026.xlsx
+HND,Honduras,Latin America & Caribbean,Lower middle income,False,raw_SDG_2026.xlsx
+TTO,Trinidad and Tobago,Latin America & Caribbean,High income,False,raw_SDG_2026.xlsx
+GTM,Guatemala,Latin America & Caribbean,Upper middle income,False,raw_SDG_2026.xlsx
+TKM,Turkmenistan,Europe & Central Asia,Upper middle income,False,raw_SDG_2026.xlsx
+BEN,Benin,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+SYR,Syrian Arab Republic,Middle East & North Africa,Low income,True,raw_SDG_2026.xlsx
+PAK,Pakistan,South Asia,Lower middle income,False,raw_SDG_2026.xlsx
+TGO,Togo,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+SWZ,Eswatini,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+GMB,"Gambia, The",Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+CMR,Cameroon,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+TZA,Tanzania,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+MRT,Mauritania,Sub-Saharan Africa,Lower middle income,True,raw_SDG_2026.xlsx
+ZWE,Zimbabwe,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+GIN,Guinea,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+MWI,Malawi,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+ETH,Ethiopia,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+SLE,Sierra Leone,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+NGA,Nigeria,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+UGA,Uganda,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+LSO,Lesotho,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+BFA,Burkina Faso,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+COM,Comoros,Sub-Saharan Africa,Lower middle income,True,raw_SDG_2026.xlsx
+DJI,Djibouti,Middle East & North Africa,Lower middle income,True,raw_SDG_2026.xlsx
+MLI,Mali,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+ZMB,Zambia,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+BDI,Burundi,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+GNB,Guinea-Bissau,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+MOZ,Mozambique,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+MDG,Madagascar,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+COG,"Congo, Rep.",Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+AGO,Angola,Sub-Saharan Africa,Lower middle income,False,raw_SDG_2026.xlsx
+PNG,Papua New Guinea,East Asia & Pacific,Lower middle income,False,raw_SDG_2026.xlsx
+LBR,Liberia,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+HTI,Haiti,Latin America & Caribbean,Low income,False,raw_SDG_2026.xlsx
+NER,Niger,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+AFG,Afghanistan,South Asia,Low income,False,raw_SDG_2026.xlsx
+ERI,Eritrea,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+COD,"Congo, Dem. Rep.",Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+YEM,"Yemen, Rep.",Middle East & North Africa,Low income,True,raw_SDG_2026.xlsx
+SDN,Sudan,Sub-Saharan Africa,Lower middle income,True,raw_SDG_2026.xlsx
+SOM,Somalia,Sub-Saharan Africa,Low income,True,raw_SDG_2026.xlsx
+TCD,Chad,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+CAF,Central African Republic,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+SSD,South Sudan,Sub-Saharan Africa,Low income,False,raw_SDG_2026.xlsx
+ATG,Antigua and Barbuda,Latin America & Caribbean,High income,False,raw_WBL2.0_2026.xlsx
+DMA,Dominica,Latin America & Caribbean,Upper middle income,False,raw_WBL2.0_2026.xlsx
+GNQ,Equatorial Guinea,Sub-Saharan Africa,Upper middle income,False,raw_WBL2.0_2026.xlsx
+GRD,Grenada,Latin America & Caribbean,Upper middle income,False,raw_WBL2.0_2026.xlsx
+HKG,"Hong Kong SAR, China*",East Asia & Pacific,High income,False,raw_WBL2.0_2026.xlsx
+KIR,Kiribati,East Asia & Pacific,Lower middle income,False,raw_WBL2.0_2026.xlsx
+KSV,Kosovo*,Europe & Central Asia,Upper middle income,False,raw_WBL2.0_2026.xlsx
+LBY,Libya,Middle East & North Africa,Upper middle income,True,raw_WBL2.0_2026.xlsx
+MHL,Marshall Islands,East Asia & Pacific,Upper middle income,False,raw_WBL2.0_2026.xlsx
+FSM,Micronesia (Federated States of),East Asia & Pacific,Lower middle income,False,raw_WBL2.0_2026.xlsx
+PLW,Palau,East Asia & Pacific,High income,False,raw_WBL2.0_2026.xlsx
+PRI,Puerto Rico*,Latin America & Caribbean,High income,False,raw_WBL2.0_2026.xlsx
+WSM,Samoa,East Asia & Pacific,Upper middle income,False,raw_WBL2.0_2026.xlsx
+SMR,San Marino,Europe & Central Asia,High income,False,raw_WBL2.0_2026.xlsx
+SYC,Seychelles,Sub-Saharan Africa,High income,False,raw_WBL2.0_2026.xlsx
+SLB,Solomon Islands,East Asia & Pacific,Lower middle income,False,raw_WBL2.0_2026.xlsx
+KNA,Saint Kitts and Nevis,Latin America & Caribbean,High income,False,raw_WBL2.0_2026.xlsx
+LCA,Saint Lucia,Latin America & Caribbean,Upper middle income,False,raw_WBL2.0_2026.xlsx
+VCT,Saint Vincent and the Grenadines,Latin America & Caribbean,Upper middle income,False,raw_WBL2.0_2026.xlsx
+TWN,"Taiwan, China*",East Asia & Pacific,High income,False,raw_WBL2.0_2026.xlsx
+TON,Tonga,East Asia & Pacific,Upper middle income,False,raw_WBL2.0_2026.xlsx
+VUT,Vanuatu,East Asia & Pacific,Lower middle income,False,raw_WBL2.0_2026.xlsx
+PSE,State of Palestine*,Middle East & North Africa,Lower middle income,True,raw_WBL2.0_2026.xlsx
+LIE,Liechtenstein,Europe & Central Asia,High income,False,raw_WPF_2026.xlsx
+AND,Andorra,Europe & Central Asia,High income,False,raw_WPF_2026.xlsx
+PRK,North Korea,East Asia & Pacific,Low income,False,raw_WPF_2026.xlsx
+XKX,Kosovo,Europe & Central Asia,Upper middle income,False,raw_DARE 1.xlsx
+TUV,Tuvalu,East Asia & Pacific,Upper middle income,False,raw_DARE 1.xlsx
+MCO,Monaco,Europe & Central Asia,High income,False,raw_EGDI_2024.xlsx
+NRU,Nauru,East Asia & Pacific,Upper middle income,False,raw_EGDI_2024.xlsx
+VAT,Vatican City,Europe & Central Asia,High income,False,raw_GCYB_2024.xlsx
+MAC,"Macao SAR, China",East Asia & Pacific,High income,False,raw_GOVTECH_2022.xlsx
+WBG,West Bank and Gaza,Middle East & North Africa,Upper middle income,False,raw_GOVTECH_2022.xlsx

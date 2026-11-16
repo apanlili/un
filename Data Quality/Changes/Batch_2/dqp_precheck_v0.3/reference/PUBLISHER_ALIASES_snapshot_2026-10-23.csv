@@ -1,0 +1,25 @@
+publisher,index_id,vintage,publisher_entity_name,simulator_identifier_observed,canonical_code,alias_scope,identifier_type,final_approval
+RSF,1036,2024,OECS,CSS,XOE,publisher,code,approved_by_Nathalie
+RSF,1036,2024,Northern Cyprus,CTU,XNC,all,code,approved_by_Nathalie
+RSF,1036,2024,Kosovo,XKX,XKX,all,code,approved_by_Nathalie
+RSF,1036,2025,OECS,CSS,XOE,publisher,code,approved_by_Nathalie
+RSF,1036,2025,Northern Cyprus,CYP,XNC,all,code,approved_by_Nathalie
+RSF,1036,2025,Kosovo,KSV,XKX,all,code,approved_by_Nathalie
+RSF,1036,2026,OECS,,XOE,publisher,name,approved_by_Nathalie
+RSF,1036,2026,Northern Cyprus,,XNC,all,name,approved_by_Nathalie
+RSF,1036,2026,Kosovo,,XKX,all,name,approved_by_Nathalie
+World Bank,1021,2026,"Congo, Dem. Rep.",ZAR,COD,all,code,pending_Nathalie
+World Bank,1021,2026,Kosovo,KSV,XKX,all,code,pending_Nathalie
+World Bank,1021,2026,Romania,ROM,ROU,all,code,pending_Nathalie
+World Bank,1021,2026,Timor-Leste,TMP,TLS,all,code,pending_Nathalie
+World Bank,1021,2026,West Bank and Gaza,WBG,PSE,all,code,pending_Nathalie
+all,all,all,Palestine,PES,PSE,all,code,approved_by_Nathalie
+all,all,all,Tanzania,TZN,TZA,all,code,approved_by_Nathalie
+all,all,all,Kosovo,KOS,XKX,all,code,approved_by_Nathalie
+World Bank,1021,2024,"Congo, Dem. Rep.",ZAR,COD,all,code,
+World Bank,1021,2024,Kosovo,KSV,XKX,all,code,
+World Bank,1021,2024,Romania,ROM,ROU,all,code,
+World Bank,1021,2024,Timor-Leste,TMP,TLS,all,code,
+World Bank,1021,2024,West Bank and Gaza,WBG,PSE,all,code,
+World Bank,1021,2023,Kosovo,KSV,XKX,all,code,
+World Bank,1021,2022,Kosovo,KSV,XKX,all,code,

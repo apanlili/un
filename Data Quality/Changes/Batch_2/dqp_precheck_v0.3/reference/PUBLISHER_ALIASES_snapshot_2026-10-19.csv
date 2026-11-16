@@ -1,0 +1,18 @@
+publisher,index_id,index_name,vintage,publisher_entity_name,simulator_identifier_observed,publisher_identifier_verified,publisher_rank,publisher_score,canonical_code,canonical_name,entity_type,mapping_reason,evidence,MJ_review,final_approval,notes,alias_scope
+RSF,1036,World Press Freedom Index,2024,OECS,CSS,,68,62.83,XOE,OECS,publisher_ranked_group,,,pending,approved_by_Nathalie,,publisher
+RSF,1036,World Press Freedom Index,2024,Northern Cyprus,CTU,,90,56.72,XNC,Northern Cyprus,territory_or_area,,,pending,approved_by_Nathalie,,all
+RSF,1036,World Press Freedom Index,2024,Kosovo,XKX,,75,60.19,XKX,Kosovo,territory_or_area,,,pending,approved_by_Nathalie,,all
+RSF,1036,World Press Freedom Index,2025,OECS,CSS,,48,68.08,XOE,OECS,publisher_ranked_group,,,pending,approved_by_Nathalie,,publisher
+RSF,1036,World Press Freedom Index,2025,Northern Cyprus,CYP,,91,54.84,XNC,Northern Cyprus,territory_or_area,Resolve duplicate CYP collision with Cyprus (rank 77).,,pending,approved_by_Nathalie,Second CYP in simulator is Northern Cyprus.,all
+RSF,1036,World Press Freedom Index,2025,Kosovo,KSV / XKX,,99,52.73,XKX,Kosovo,territory_or_area,,,pending,approved_by_Nathalie,data sheet uses KSV; Projection uses XKX.,all
+RSF,1036,World Press Freedom Index,2026,OECS,name only,,57,64.6,XOE,OECS,publisher_ranked_group,,,pending,approved_by_Nathalie,,publisher
+RSF,1036,World Press Freedom Index,2026,Northern Cyprus,name only,,82,56.57,XNC,Northern Cyprus,territory_or_area,,,pending,approved_by_Nathalie,,all
+RSF,1036,World Press Freedom Index,2026,Kosovo,name only,,84,55.89,XKX,Kosovo,territory_or_area,,,pending,approved_by_Nathalie,,all
+World Bank,1021,"Women, Business and the Law 1.0",2026,"Congo, Dem. Rep.",ZAR,ZAR (World Bank legacy code),,,COD,"Congo, Democratic Republic of the",country_or_area,,,pending,pending_Nathalie,,all
+World Bank,1021,"Women, Business and the Law 1.0",2026,Kosovo,KSV,KSV (World Bank legacy code),,,XKX,Kosovo,territory_or_area,,,pending,pending_Nathalie,,all
+World Bank,1021,"Women, Business and the Law 1.0",2026,Romania,ROM,ROM (World Bank legacy code),,,ROU,Romania,country_or_area,,,pending,pending_Nathalie,,all
+World Bank,1021,"Women, Business and the Law 1.0",2026,Timor-Leste,TMP,TMP (World Bank legacy code),,,TLS,Timor-Leste,country_or_area,,,pending,pending_Nathalie,,all
+World Bank,1021,"Women, Business and the Law 1.0",2026,West Bank and Gaza,WBG,WBG (World Bank economy code),,,PSE,"Palestine, State of",territory_or_area,,,pending,pending_Nathalie,,all
+all,all,all indices,all,Palestine,PES,,,,PSE,"Palestine, State of",country_or_area,"General alias, valid for every index and vintage.",,pending,approved_by_Nathalie,Added 2026-10-17.,all
+all,all,all indices,all,Tanzania,TZN,,,,TZA,"Tanzania, United Republic of",country_or_area,"General alias, valid for every index and vintage.",,pending,approved_by_Nathalie,Added 2026-10-17.,all
+all,all,all indices,all,Kosovo,KOS,,,,XKX,Kosovo,territory_or_area,"General alias, valid for every index and vintage.",,pending,approved_by_Nathalie,Added 2026-10-17.,all

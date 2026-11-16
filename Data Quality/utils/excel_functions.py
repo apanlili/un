@@ -714,3 +714,16 @@ def find_shared_folder(name):
             return p
 
     raise FileNotFoundError(f"Couldn't find '{name}' in Google Drive for Desktop")
+
+
+####################################################################################
+######### Batch 2 (pipeline version 1.2) - moved here from 'batch2' (utils/batch2.py)
+####################################################################################
+# Used to add the 'Country Profile Coverage' sheet to the country profile workbook.
+def append_sheet(xlsx_path: str | Path, sheet_name: str, df: pd.DataFrame) -> None:
+    """Add a sheet to an already written workbook (used for workbooks without images)."""
+    with pd.ExcelWriter(xlsx_path, engine='openpyxl', mode='a', if_sheet_exists='error') as writer:
+        df.to_excel(writer, sheet_name=sheet_name, index=False)
+        ws = writer.sheets[sheet_name]
+        for col_letter, width in zip('ABCDEF', (8, 32, 14, 14, 18, 22)):
+            ws.column_dimensions[col_letter].width = width

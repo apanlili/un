@@ -1,12 +1,17 @@
 """
 Metadata Automation - Batch 2 - script version of 'Metadata Automation v1.2.ipynb' (version 1.2).
 
-Batch 1 (as in Archive/metadata_v1.1.py) plus the DQP Batch 2 changes (utils/batch2.py):
+Batch 1 (as in Archive/metadata_v1.1.py) plus the DQP Batch 2 changes (Batch 2 sections of utils/formatting_functions.py and utils/excel_functions.py):
 - Snippet 2 (percentages): every user-facing % / _pct column is on a 0-100 scale; the exported matching
   ratio is value_difference_ratio_inferred, with value_difference_pct_inferred (x100) next to it.
 - Snippet 1 (country-code audit): 'Country code audit' sheet in the metadata workbook - every ISO in the
-  simulator and/or historical file (BOTH / SIMULATOR_ONLY / HISTORICAL_ONLY); --canonical-codes FILE adds
-  a VALID / UNKNOWN check against a canonical country list (NOT_CHECKED without one).
+  simulator and/or historical file (BOTH / SIMULATOR_ONLY / HISTORICAL_ONLY), checked against the ISPAR country
+  reference (<data-root>/Reference Data/Country_Reference.xlsx: canonical codes, publisher aliases, code history,
+  country names; or --country-reference FILE): VALID / ALIAS / UNKNOWN, the canonical code (KSV -> XKX, PES -> PSE) and the presence
+  after mapping. Alias codes are then corrected to the canonical code in both data tables before matching
+  (iso_corrected in the audit; --no-iso-fix keeps the file codes). Codes outside the reference are kept as they
+  are; a correction that would duplicate a country's KPI/year row stops that index.
+  --no-country-reference: NOT_CHECKED, no correction.
 - Snippet 3 (country coverage): 'Country Profile Coverage' sheet (AVAILABLE / NOT_COVERED_BY_INDEX_EDITION for each
   requested country; default the 22 ESCWA members, or --countries SOM ...) in the metadata, ISPAR input and
   country profile workbooks. Country profile sheets are written only for AVAILABLE countries.
@@ -35,6 +40,7 @@ Each workbook has a 'Run Info' sheet (run time, version 1.2, input files).
 --no-date (or --flat): old names without the date; existing files are overwritten.
 """
 import os
+import re
 os.environ.setdefault('MPLBACKEND', 'Agg')   # outlier plots are rendered off-screen
 
 import sys
@@ -46,11 +52,12 @@ import pandas as pd
 
 from utils.runner import build_parser, resolve, run_batch, utf8_console
 from utils.index_files import ESCWA_MEMBERS, UCE_VINTAGES
-from utils.batch2 import (pct100_columns, profile_quality_summary_table_pct100,      # Batch 2
-                          prepare_metadata_export_percentages, check_pct100,
-                          country_presence_audit, print_country_audit, load_canonical_codes,
-                          build_profile_coverage_table, profile_isos_to_generate, print_coverage,
-                          append_sheet, AUDIT_SHEET, COVERAGE_SHEET)
+from utils.formatting_functions import (                                         # Batch 2 (moved from utils/batch2.py)
+    pct100_columns, profile_quality_summary_table_pct100, prepare_metadata_export_percentages, check_pct100,
+    country_presence_audit, print_country_audit, load_country_reference, COUNTRY_REFERENCE_NAME,
+    iso_corrections, apply_iso_corrections,
+    build_profile_coverage_table, profile_isos_to_generate, print_coverage, AUDIT_SHEET, COVERAGE_SHEET)
+from utils.excel_functions import append_sheet                                  # Batch 2
 from utils.bound_rules import load_uce_bounds, empty_uce_bounds, uce_beyond_bound, uce_a1_mask   # Snippet 2
 from utils.outlier_detection import detect_outliers_by_series
 from utils.formatting_functions import (
@@ -190,8 +197,18 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
     for df in (historical_kpi_data_long, simulator_data):
         if 'Country' in df.columns:
             country_names.update(dict(zip(df['ISO'].astype(str).str.strip().str.upper(), df['Country'])))
-    country_audit = country_presence_audit(simulator_data, historical_kpi_data_long,
-                                           canonical_codes=args.canonical_codes, names=country_names)
+    index_id = re.match(r'index_(\d+)', index_name).group(1)     # '1036' for publisher-scoped aliases
+    country_audit = country_presence_audit(simulator_data, historical_kpi_data_long, names=country_names,
+                                           country_reference=args.country_ref, index_id=index_id)
+    # ISO correction: alias codes -> canonical code in both data tables (the audit above records the file codes).
+    # Codes outside the reference are kept as they are (UNKNOWN in the audit). A correction that would give a
+    # country two rows for the same KPI/year stops this index (IsoCorrectionConflict).
+    corrections = iso_corrections(country_audit) if args.fix_iso else {}
+    country_audit['iso_corrected'] = country_audit['ISO'].isin(corrections.keys())
+    simulator_data = apply_iso_corrections(simulator_data, corrections, ['ISO', 'KPI ID'], 'simulator')
+    historical_kpi_data_long = apply_iso_corrections(
+        historical_kpi_data_long, corrections, ['ISO', 'KPI ID', 'year_historical_automated'], 'historical')
+    historical_kpi_data_long_escwa = historical_kpi_data_long[historical_kpi_data_long['ISO'].isin(escwa_members)]
     print_country_audit(country_audit)
 
     #############################################
@@ -753,19 +770,30 @@ def run_index(index_name, index_historical_kpi_data_path, index_simulator_data_p
         country_iso_list = profile_isos_to_generate(country_coverage)
 
         ensure_new(output_path, args.flat)
-        write_country_sheets_to_excel(
-            metadata_renamed,
-            kpi_year,
-            diagnosis_assessment_template,
-            country_iso_list,
-            quality_cols,
-            static_tables,
-            output_path=output_path,
-            index_title=index_title,
-            title=title,
-        )
-        append_sheet(output_path, COVERAGE_SHEET, country_coverage)   # Batch 2 Snippet 3
-        append_run_info(output_path, run_info_df(manifest))   # Snippet 3
+        if country_iso_list:
+            write_country_sheets_to_excel(
+                metadata_renamed,
+                kpi_year,
+                diagnosis_assessment_template,
+                country_iso_list,
+                quality_cols,
+                static_tables,
+                output_path=output_path,
+                index_title=index_title,
+                title=title,
+            )
+            append_sheet(output_path, COVERAGE_SHEET, country_coverage)   # Batch 2 Snippet 3
+            append_run_info(output_path, run_info_df(manifest))   # Snippet 3
+        else:
+            # Batch 2 Snippet 3: no requested country is covered by this edition -> no country sheets;
+            # the workbook states the coverage instead of being empty or broken
+            print("No requested country is covered by this index edition: "
+                  "country profile workbook contains the coverage table only.")
+            write_dataframes_to_excel(
+                {COVERAGE_SHEET: country_coverage, RUN_INFO_SHEET: run_info_df(manifest)},
+                output_path=output_path, freeze_header=True, autofit_columns=True,
+                header_bold=True, add_borders=True, add_autofilter=True, index=False,
+            )
         written.append(output_path)
 
     return written
@@ -784,23 +812,31 @@ def main(argv=None):
     g = parser.add_argument_group('batch 2 (country audit and coverage)')
     g.add_argument('--countries', nargs='+', metavar='ISO',
                    help='Countries to check coverage for and profile (default: the 22 ESCWA members)')
-    g.add_argument('--canonical-codes', type=Path, metavar='FILE',
-                   help='Canonical country list (csv/xlsx with an ISO column) for the country-code audit; '
-                        'without it the canonical check is NOT_CHECKED')
+    g.add_argument('--country-reference', type=Path, metavar='FILE',
+                   help=f"Country reference workbook for the country-code audit and ISO correction "
+                        f"(default: <data-root>/Reference Data/{COUNTRY_REFERENCE_NAME})")
+    g.add_argument('--no-country-reference', action='store_true',
+                   help='Country-code audit without the reference (canonical check NOT_CHECKED, no ISO correction)')
+    g.add_argument('--no-iso-fix', dest='fix_iso', action='store_false',
+                   help='Audit only: keep the country codes as in the files (default: alias codes are corrected '
+                        'to the canonical code before matching)')
     args = resolve(parser.parse_args(argv))
     args.countries = [c.strip().upper() for c in args.countries] if args.countries else None
-    args.canonical_file = args.canonical_codes
-    if args.canonical_file and not args.canonical_file.is_file():
-        sys.exit(f'Canonical country list not found: {args.canonical_file}')
-    args.canonical_codes = load_canonical_codes(args.canonical_file)
+    if args.no_country_reference:
+        args.country_ref, args.country_ref_files = None, []
+    else:
+        args.country_reference = args.country_reference or args.data_root / 'Reference Data' / COUNTRY_REFERENCE_NAME
+        if not args.country_reference.is_file():
+            sys.exit(f'Country reference not found: {args.country_reference}')
+        args.country_ref = load_country_reference(args.country_reference)
+        args.country_ref_files = [args.country_reference]
     args.uce_csv = args.uce_csv or args.data_root / 'Reference Data' / UCE_BOUNDS_CSV_NAME
     if not args.legacy_a1 and not args.uce_csv.is_file():
         sys.exit(f'UCE bounds CSV not found: {args.uce_csv}')
     # Snippet 3: Snippet 2 settings that change results are part of the fingerprint
     def stamp_inputs(args, index_name):
         files = [] if args.legacy_a1 else [file_input('uce_bounds', args.uce_csv)]
-        if args.canonical_file:
-            files.append(file_input('canonical_countries', args.canonical_file))
+        files += [file_input('country_reference', f) for f in args.country_ref_files]
         return files
 
     def stamp_options(args, index_name):

@@ -11,7 +11,7 @@ Batch 2 is built on top of Batch 1: all Batch 1 changes are kept. Matching rules
 
 | Snippet | What it does | Where it shows |
 |---|---|---|
-| 1. Country-code audit (issue 8) | For every country code: in both files, simulator only or historical only; canonical check when a canonical list is supplied | `Country code audit` sheet, metadata workbook |
+| 1. Country-code audit (issue 8) | For every country code: in both files, simulator only or historical only; checked against the ISPAR country reference (valid, alias with its canonical code, or unknown) | `Country code audit` sheet, metadata workbook |
 | 2. Percentages (issue 10) | Every user-facing `%` / `_pct` column on a 0–100 scale; exported matching ratio labelled as a ratio, with a 0–100 percentage next to it | Metadata and country profile workbooks |
 | 3. Country Profile Coverage (issue 11) | One status per requested country, `AVAILABLE` or `NOT_COVERED_BY_INDEX_EDITION`; country sheets only for available countries | `Country Profile Coverage` sheet in the metadata, ISPAR input and country profile workbooks |
 
@@ -19,7 +19,7 @@ Batch 2 is built on top of Batch 1: all Batch 1 changes are kept. Matching rules
 | File | Contents |
 |---|---|
 | `Metadata Automation v1.2.ipynb` (was `Metadata Automation - Batch 2.ipynb`), `metadata_batch2.py` | Batch 2 pipeline, **version 1.2** (copy of Batch 1 v1.1 plus the Batch 2 changes). Notebook and script give identical outputs (checked on EGDI 2024). |
-| `utils/batch2.py` | Batch 2 functions, based on `DQP_Batch2_Reference_Snippets_2026-11-11.py`. Kept separate so v1.0 and v1.1 outputs do not change. |
+| `utils/formatting_functions.py`, `utils/excel_functions.py` | Batch 2 functions, based on `DQP_Batch2_Reference_Snippets_2026-11-11.py`, in a section headed "Batch 2 ... moved here from 'batch2'" at the end of each file (originally `utils/batch2.py`). They are new functions; existing functions are unchanged, so v1.0 and v1.1 outputs do not change. |
 | `utils/excel_functions.py` | Skip-message fix in the country-sheet writer (shared; affects only the error path). |
 | `metadata_compare.py` | Reads each workbook's version from `Run Info` so v1.1 (fractions) and v1.2 (0–100) country percentages are compared on the same scale. |
 | `Archive/Metadata Automation v1.0.ipynb` / `Archive/metadata_v1.0.py` (v1.0), `Archive/Metadata Automation v1.1.ipynb` / `Archive/metadata_v1.1.py` (v1.1) | Unchanged (archived 16 November). |
@@ -28,9 +28,11 @@ Batch 2 is built on top of Batch 1: all Batch 1 changes are kept. Matching rules
 ```
 python metadata_batch2.py --index index_1024 --all-outputs            # one index, all three workbooks
 python metadata_batch2.py --countries SOM --profile                   # coverage / profile for Somalia only
-python metadata_batch2.py --canonical-codes path/to/canonical.csv     # canonical check in the audit
+python metadata_batch2.py --country-reference path/to/other.xlsx      # another country reference workbook
+python metadata_batch2.py --no-iso-fix                               # audit only: keep the country codes as in the files
+python metadata_batch2.py --no-country-reference                      # audit without the reference (NOT_CHECKED, no correction)
 ```
-Notebook settings (Setup cell): `requested_countries` (None = ESCWA members, or e.g. `['SOM']`) and `canonical_country_file`.
+Notebook settings (Setup cell): `requested_countries` (None = ESCWA members, or e.g. `['SOM']`), `use_country_reference`, `fix_iso` and `country_reference_file`.
 
 ---
 
@@ -44,9 +46,40 @@ Right after the simulator and historical data are read, the pipeline lists every
 | `ISO`, `Country` | Code as it appears in the files, and its name |
 | `in_simulator`, `in_historical` | Present in each file |
 | `presence_status` | `BOTH`, `SIMULATOR_ONLY` or `HISTORICAL_ONLY` |
-| `canonical_iso_status` | `VALID` / `UNKNOWN` against a canonical country list; `NOT_CHECKED` when none is supplied |
+| `canonical_iso_status` | `VALID` (a canonical code), `ALIAS` (a publisher alias, old code or country name that maps to a canonical code) or `UNKNOWN`; `NOT_CHECKED` with `--no-country-reference` |
+| `canonical_code` | The canonical code (e.g. `KSV` → `XKX`, `PES` → `PSE`, `LIECHTENSTEIN` → `LIE`) |
+| `presence_after_mapping` | `BOTH` / `SIMULATOR_ONLY` / `HISTORICAL_ONLY` once both files' codes are mapped to canonical codes |
 
-The table is saved as the `Country code audit` sheet and summarised in the console. The DQP does not map aliases; that stays with the universal pre-check, as instructed.
+The table is saved as the `Country code audit` sheet and summarised in the console, including the aliases found and the counts after mapping.
+
+**Country reference.** One workbook, `Data/Reference Data/Country_Reference.xlsx`, built from the 23 October 2026 snapshots shipped with the pre-check package (`dqp_precheck_v0.3`, in this folder):
+
+| Sheet | Content |
+|---|---|
+| `About` | Source, snapshot date, how to update |
+| `PUBLISHER_ALIASES` | Code used in a publisher file → canonical code (KSV → XKX, PES → PSE ...) |
+| `CANONICAL_ENTITIES` | The 253 valid codes |
+| `CODE_HISTORY` | Old codes → current code |
+| `COUNTRY_NAMES` | Country name → code, for names written in the code column |
+
+The first three sheets have the same names and layout as the Google Sheet "ISPAR Geographic Reference & Publisher Mappings", so a new export can replace them. The workbook is read by `utils/country_codes.py`, the part of the pre-check's `ispar_reference/countries.py` the DQP needs (same mapping, checked against the original); the alias rules themselves stay in the workbook. The `dqp_precheck_v0.3` folder is kept here for reference only; the pipeline does not import it. Another file can be given with `--country-reference` (notebook: `country_reference_file`). The `Run Info` sheet lists the file used.
+
+**ISO correction (after the audit).** Every `ALIAS` code is then replaced by its canonical code in both the simulator and historical data, before matching; `iso_corrected` in the audit marks the codes changed. The audit itself records the codes as they are in the files.
+- Codes outside the reference (`UNKNOWN`, e.g. `ATG.1`, `IRN.1`, `ANT` in ICT) are kept as they are and flagged in the console.
+- Hard flag: if a correction would give a country two rows for the same KPI (and year), because the file holds both the alias and the canonical code, the index stops with an error listing the rows. None of the 8 indices tested (the 7 below and EGDI 2024) has such a case.
+- Switch off with `--no-iso-fix` (notebook: `fix_iso = False`) to reproduce the earlier v1.2 results. Only the country-code steps of the pre-check are used; its other checks (`run()`) are not.
+
+Effect on the indices with alias codes (same rows; buckets change only for the corrected countries):
+
+| Index | Corrections | Bucket change |
+|---|---|---|
+| WPS 2025 (`index_1022`) | KSV→XKX, PES→PSE | Palestine: 6 records E → 1 A, 1 B, 4 C |
+| DARE (`index_10`) | PES→PSE, TZN→TZA | Palestine and Tanzania: 21 records each E → A |
+| WJP (`index_1052`) | KSV→XKX | Kosovo: 44 records E → A |
+| WPF 2026 (`index_1036`) | KSV→XKX, LIECHTENSTEIN→LIE | Liechtenstein: 5 records E → 1 A, 4 C |
+| GCYB (`index_3`) | LAO PDR→LAO | Laos: 20 records E → 10 A, 10 C |
+| ICT (`index_5`) | WBG→PSE | No bucket change (both files used WBG); Palestine now `AVAILABLE` in the coverage table and gets a profile sheet |
+| FII 2025 (`index_1024`) | KSV→XKX | None (Kosovo has no historical data) |
 
 ### Result against the regression cases
 | Index | Expected (both / simulator only / historical only) | DQP result | |
@@ -56,7 +89,7 @@ The table is saved as the `Country code audit` sheet and summarised in the conso
 | GII 2026 (`index_7_2026`) | 139 / 0 / 0 | 139 / 0 / 0 | Match |
 | WPS 2025 (`index_1022`) | 175 / 6 / 1 (GNQ) | 174 / 7 / 2 | Differs by one alias (below) |
 
-**WPS 2025 — one-sided difference caused by an alias.** The WPS historical file codes Palestine as `PES`; the simulator file uses `PSE`. The pre-check maps `PES → PSE`, so the expected result counts Palestine in both files. Our files are not pre-checked, so the audit shows `PSE` as simulator-only and `PES` as historical-only. With that alias resolved the counts are exactly 175 / 6 / 1.
+**WPS 2025 — one-sided difference caused by an alias.** The WPS historical file codes Palestine as `PES`; the simulator file uses `PSE`. The pre-check maps `PES → PSE`, so the expected result counts Palestine in both files. Our files are not pre-checked, so the audit shows `PSE` as simulator-only and `PES` as historical-only. With the country reference, the audit marks `PES` as an `ALIAS` of `PSE`, and the counts after mapping are exactly 175 / 6 / 1.
 
 This is also a data finding: because the codes differ, Palestine's WPS records never find their historical data in the DQP (in every version, 1.0–1.2). This is the kind of difference the audit is meant to make visible.
 
@@ -162,8 +195,8 @@ Kosovo is also `KSV` in the FII 2025 and WPS 2025 simulator files, where the pre
 | # | Item | Status | Notes |
 |---|---|---|---|
 | 1 | Audit saved in both directions, not only printed | **Done** | `Country code audit` sheet |
-| 2 | Aliases approved by the pre-check do not reappear as false missing countries | **Depends on the pre-check** | Our input files are not pre-checked. Six indices show code mismatches (section 4), e.g. WPS 2025 `PES`/`PSE`. |
-| 3 | Codes outside the canonical reference are kept as review items | **Partly done** | The check is built (`--canonical-codes`), but no canonical list is available locally, so the status is `NOT_CHECKED`. |
+| 2 | Aliases approved by the pre-check do not reappear as false missing countries | **Done** | Aliases are marked `ALIAS` in the audit and corrected to the canonical code before matching. |
+| 3 | Codes outside the canonical reference are kept as review items | **Done** | `UNKNOWN` against the ISPAR reference, e.g. `ATG.1`, `IRN.1` (duplicated columns) and `ANT` (Netherlands Antilles, split) in ICT. |
 | 4 | Every user-facing `%` is 0–100 and grouped buckets sum to ~100 | **Done** | |
 | 5 | Ratio exported as `value_difference_ratio_inferred` plus `value_difference_pct_inferred` | **Done** | |
 | 6 | Bucket counts unchanged | **Done** | Identical to v1.1 on every index tested |
@@ -176,14 +209,15 @@ Kosovo is also `KSV` in the FII 2025 and WPS 2025 simulator files, where the pre
 ### Intentional changes from the reference
 1. **Coverage table also in the metadata and ISPAR input workbooks**, not only before the country profiles, so it is saved even when profiles are not produced, and ISPAR can tell "not covered by this index" from "missing".
 2. **Audit adds a `Country` column** (name) to the reference table.
-3. **Canonical check left as `NOT_CHECKED`** until a canonical country list is provided; `metadata_SDG_2026.xlsx` was not used because it lists only the 171 SDG-index countries (it lacks e.g. PSE, XKX, GNQ).
+3. **Audit uses the ISPAR country reference** (from `dqp_precheck_v0.3`) and adds `canonical_code`, the `ALIAS` status and `presence_after_mapping` to the reference table, so alias mismatches are visible without the pre-check having run on our files.
 4. **ISPAR input saved without the run date** (by decision): `Profile_Input_ISPAR_<index>.xlsx` keeps a fixed name and is replaced on each run, so ISPAR always reads one file per index. The metadata and country profile workbooks keep the date and are never overwritten.
 5. **No `Run Info` sheet in the ISPAR input workbook** (by decision): the ISPAR file holds only `Profile_counts`, `Older data table` and `Country Profile Coverage`. The run details (version, run ID, input files) are in the `Run Info` sheet of the metadata and country profile workbooks from the same run, which share the file date.
 6. **Exact-match check:** the shared check expects fractions, so Batch 2 passes it fractions; its printed results are unchanged.
+7. **Country codes corrected in the DQP** (by decision, still version 1.2): alias codes are replaced by their canonical code before matching, using the pre-check's reference data (`Country_Reference.xlsx`) and its code lookup (`utils/country_codes.py`). This changes buckets for the corrected countries only (table in section 1). The instructions leave canonicalisation to the universal pre-check; this does it inside the DQP until the pre-check runs on our files.
 
 ---
 
 ## 6. Open questions for the team
-1. Can you share the canonical country list, or the pre-check output for our files, so the audit uses the same codes?
+1. `Country_Reference.xlsx` holds the 23 October 2026 snapshots of the Geographic Reference shipped with `dqp_precheck_v0.3`. Is there a newer version of the Google Sheet we should export into it?
 2. Six indices have country-code mismatches between their simulator and historical files (section 4: `PES`/`PSE`, `TZN`/`TZA`, `KSV`/`XKX`, names in the ISO column, a duplicated column). Should these be corrected upstream (pre-check or source files) before the next run?
 3. Which historical files are current for EGDI 2024 (the corrected 11 November file is not in our folder) and GII 2026 (`20261019_..._GII_2026.xlsx` or `... v2.xlsx`; simulator `raw_GII_2026.xlsx` or a numbered copy)?
