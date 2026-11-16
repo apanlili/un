@@ -18,7 +18,7 @@ Batch 2 is built on top of Batch 1: all Batch 1 changes are kept. Matching rules
 ### Files
 | File | Contents |
 |---|---|
-| `Metadata Automation - Batch 2.ipynb`, `metadata_batch2.py` | Batch 2 pipeline, **version 1.2** (copy of Batch 1 v1.1 plus the Batch 2 changes). Notebook and script give identical outputs (checked on EGDI 2024). |
+| `Metadata Automation v1.2.ipynb` (was `Metadata Automation - Batch 2.ipynb`), `metadata_batch2.py` | Batch 2 pipeline, **version 1.2** (copy of Batch 1 v1.1 plus the Batch 2 changes). Notebook and script give identical outputs (checked on EGDI 2024). |
 | `utils/batch2.py` | Batch 2 functions, based on `DQP_Batch2_Reference_Snippets_2026-11-11.py`. Kept separate so v1.0 and v1.1 outputs do not change. |
 | `utils/excel_functions.py` | Skip-message fix in the country-sheet writer (shared; affects only the error path). |
 | `metadata_compare.py` | Reads each workbook's version from `Run Info` so v1.1 (fractions) and v1.2 (0–100) country percentages are compared on the same scale. |

@@ -23,7 +23,7 @@ This document replaces the separate `Snippet1_Summary.md`, `Snippet2_Summary.md`
 | `metadata_compare.py` | Compares original vs Batch 1 outputs for every index, merged into one workbook. Has Snippet 3. |
 | `utils/bound_rules.py` | Snippet 2: UCE bounds, reviewed A1 list, A1 test, beyond-bound flag. |
 | `utils/run_stamp.py` | Snippet 3: run record, fingerprint, `Run Info` sheet, overwrite guard. |
-| `utils/batch.py`, `utils/index_files.py` | Shared command line and batch loop; index → file, UCE vintage and edition mapping. |
+| `utils/runner.py` (was `utils/batch.py`), `utils/index_files.py` | Shared command line and batch loop; index → file, UCE vintage and edition mapping. |
 
 ---
 

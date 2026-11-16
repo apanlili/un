@@ -1,9 +1,10 @@
 """
 Command line + batch loop shared by metadata_batch2.py and the archived Archive/metadata_v1.0.py, metadata_v1.1.py.
 
-Each script supplies a `run_index(index_name, hist_file, sim_file, args)` function;
+Each script supplies a `run_index(index_name, hist_file, sim_file, args, manifest)` function;
 this module parses the options, resolves folders, picks the indices whose files
-exist, and runs them one after another (one failure does not stop the batch).
+exist, builds each index's run record (manifest, written to the 'Run Info' sheet),
+and runs them one after another (one failure does not stop the batch).
 """
 from __future__ import annotations
 

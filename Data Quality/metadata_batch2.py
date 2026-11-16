@@ -1,5 +1,5 @@
 """
-Metadata Automation - Batch 2 - script version of 'Metadata Automation - Batch 2.ipynb' (version 1.2).
+Metadata Automation - Batch 2 - script version of 'Metadata Automation v1.2.ipynb' (version 1.2).
 
 Batch 1 (as in Archive/metadata_v1.1.py) plus the DQP Batch 2 changes (utils/batch2.py):
 - Snippet 2 (percentages): every user-facing % / _pct column is on a 0-100 scale; the exported matching
@@ -44,7 +44,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from utils.batch import build_parser, resolve, run_batch, utf8_console
+from utils.runner import build_parser, resolve, run_batch, utf8_console
 from utils.index_files import ESCWA_MEMBERS, UCE_VINTAGES
 from utils.batch2 import (pct100_columns, profile_quality_summary_table_pct100,      # Batch 2
                           prepare_metadata_export_percentages, check_pct100,

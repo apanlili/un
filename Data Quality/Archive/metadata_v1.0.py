@@ -35,7 +35,7 @@ import pandas as pd
 # Archived in Data Quality/Archive: utils is one folder up
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from utils.batch import build_parser, resolve, run_batch, utf8_console
+from utils.runner import build_parser, resolve, run_batch, utf8_console
 from utils.index_files import ESCWA_MEMBERS
 from utils.outlier_detection import detect_outliers_by_series
 from utils.formatting_functions import (
